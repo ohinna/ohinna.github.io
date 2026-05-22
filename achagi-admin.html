@@ -346,7 +346,7 @@ const db = firebase.database();
     <div class="login-logo">Acha<span>Gi</span></div>
     <div class="login-sub">painel admin</div>
     <input type="password" id="loginInput" placeholder="senha" onkeydown="if(event.key==='Enter')verificarSenha()">
-    <button class="login-btn" onclick="verificarSenha()">Entrar</button>
+    <button class="login-btn" id="loginBtn" onclick="verificarSenha()">Entrar</button>
     <div class="login-error" id="loginError">Senha incorreta 🔒</div>
   </div>
 </div>
@@ -1102,22 +1102,29 @@ function initAdminTheme() {
 // LOGIN
 const SENHA = 'eusoulinda';
 function verificarSenha() {
-  const val = document.getElementById('loginInput').value;
-  if (val === SENHA) {
-    document.getElementById('loginOverlay').style.display = 'none';
-    sessionStorage.setItem('achagi_auth', '1');
-  } else {
-    document.getElementById('loginError').style.display = 'block';
-    document.getElementById('loginInput').value = '';
-    document.getElementById('loginInput').focus();
-  }
+  try {
+    var val = document.getElementById('loginInput').value;
+    var overlay = document.getElementById('loginOverlay');
+    var errEl = document.getElementById('loginError');
+    if (val === SENHA) {
+      overlay.style.display = 'none';
+      try { sessionStorage.setItem('achagi_auth', '1'); } catch(e) {}
+    } else {
+      if (errEl) errEl.style.display = 'block';
+      document.getElementById('loginInput').value = '';
+      document.getElementById('loginInput').focus();
+    }
+  } catch(e) { console.error('Login error:', e); }
 }
 // Check if already logged in
-if (sessionStorage.getItem('achagi_auth') === '1') {
-  document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('loginOverlay').style.display = 'none';
-  });
-}
+try {
+  if (sessionStorage.getItem('achagi_auth') === '1') {
+    document.addEventListener('DOMContentLoaded', function() {
+      var ov = document.getElementById('loginOverlay');
+      if (ov) ov.style.display = 'none';
+    });
+  }
+} catch(e) {}
 
 // Navigation
 function goTo(page) {
