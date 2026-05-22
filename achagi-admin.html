@@ -21,7 +21,7 @@
   --border: #e8e8e8;
   --bg: #f7f6f3;
   --white: #fff;
-  --sidebar-w: 220px;
+  --sidebar-w: 240px;
   --shadow: 0 2px 16px rgba(0,0,0,0.07);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -191,7 +191,7 @@ textarea { resize: vertical; min-height: 80px; }
   align-items: center; justify-content: center;
 }
 .modal-overlay.open { display: flex; }
-.modal {
+.modal { overflow-y: auto; max-height: 90vh;
   background: var(--white); border-radius: 16px;
   padding: 2rem; width: 500px; max-width: 90vw;
   box-shadow: 0 20px 60px rgba(0,0,0,0.15);
@@ -199,18 +199,155 @@ textarea { resize: vertical; min-height: 80px; }
 .modal-title { font-size: 18px; font-family: 'Playfair Display', serif; margin-bottom: 1.5rem; }
 .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 1.5rem; }
 
+
+.login-overlay {
+  position: fixed; inset: 0; background: #fafaf8;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999; flex-direction: column; gap: 1rem;
+}
+[data-theme="dark"] .login-overlay { background: #111; }
+.login-box {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: 16px; padding: 2.5rem 2rem;
+  width: 320px; text-align: center;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+}
+.login-logo { font-family: 'Playfair Display', serif; font-size: 32px; letter-spacing: 3px; margin-bottom: 4px; }
+.login-logo span { color: var(--pink); font-style: italic; }
+.login-sub { font-size: 12px; color: var(--gray-light); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1.5rem; }
+.login-box input {
+  width: 100%; padding: 10px 14px; border: 1px solid var(--border);
+  border-radius: 8px; font-size: 14px; font-family: 'DM Sans', sans-serif;
+  margin-bottom: 10px; text-align: center; letter-spacing: 2px;
+}
+.login-box input:focus { outline: none; border-color: var(--pink); }
+.login-btn {
+  width: 100%; padding: 11px; background: var(--pink); color: #fff;
+  border: none; border-radius: 8px; font-size: 14px; font-weight: 500;
+  cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.2s;
+}
+.login-btn:hover { background: var(--pink-dark); }
+.login-error { font-size: 12px; color: #dc2626; margin-top: 6px; display: none; }
+
 /* EMPTY STATE */
 .empty-state { text-align: center; padding: 3rem; color: var(--gray-light); }
 .empty-state .icon { font-size: 40px; margin-bottom: 1rem; }
 .empty-state p { font-size: 14px; }
+
+
+
+  /* TOUCH SCROLL FIX */
+  .sidebar-nav,
+  .sub-nav,
+  table {
+    -webkit-overflow-scrolling: touch;
+  }
+  table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  body { overflow-x: hidden; }
+
+@media (max-width: 768px) {
+  body { flex-direction: column; }
+  .sidebar {
+    width: 100%; height: auto; position: relative;
+    border-right: none; border-bottom: 1px solid var(--border);
+    flex-direction: column;
+  }
+  .sidebar-logo { padding: 1rem 1.25rem 0.75rem; }
+  .sidebar-nav {
+    display: flex; flex-direction: row; overflow-x: auto;
+    padding: 0 0.5rem 0.5rem; gap: 0;
+    scrollbar-width: none;
+  }
+  .sidebar-nav::-webkit-scrollbar { display: none; }
+  .nav-group-title { display: none; }
+  .nav-item {
+    flex-shrink: 0; padding: 8px 14px;
+    border-left: none; border-bottom: 2px solid transparent;
+    font-size: 12px; white-space: nowrap;
+  }
+  .nav-item.active {
+    border-left: none; border-bottom-color: var(--pink);
+    background: var(--pink-light);
+  }
+  .sidebar-footer { display: none; }
+  .main { margin-left: 0; width: 100%; }
+  .topbar { padding: 0.75rem 1rem; }
+  .content { padding: 1rem; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .charts-grid { grid-template-columns: 1fr; }
+  .modal { width: 95vw; }
+}
+
+
+  [data-theme="dark"] {
+    --black: #f0f0f0;
+    --gray: #aaa;
+    --gray-light: #555;
+    --border: #2a2a2a;
+    --bg: #111;
+    --white: #1a1a1a;
+    --pink-light: #2a1520;
+    --green-light: #162010;
+    --amber-light: #201508;
+  }
+  [data-theme="dark"] body { background: #111; }
+  [data-theme="dark"] .sidebar { background: #161616; border-color: #2a2a2a; }
+  [data-theme="dark"] .topbar { background: #161616; border-color: #2a2a2a; }
+  [data-theme="dark"] .stat-card,
+  [data-theme="dark"] .chart-card,
+  [data-theme="dark"] .table-card,
+  [data-theme="dark"] .form-card,
+  [data-theme="dark"] .comment-card,
+  [data-theme="dark"] .modal,
+  [data-theme="dark"] .login-box { background: #1a1a1a; }
+  [data-theme="dark"] input,
+  [data-theme="dark"] select,
+  [data-theme="dark"] textarea { background: #222; color: #f0f0f0; border-color: #333; }
+  [data-theme="dark"] table th { background: #161616; }
+
+  .theme-toggle {
+    background: none; border: 1px solid var(--border);
+    border-radius: 20px; padding: 5px 12px;
+    font-size: 13px; cursor: pointer;
+    color: var(--gray); font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+  }
+  .theme-toggle:hover { border-color: var(--pink); color: var(--pink); }
 
 @media (max-width: 900px) {
   .stats-grid { grid-template-columns: 1fr 1fr; }
   .charts-grid { grid-template-columns: 1fr; }
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/firebase@9.23.0/firebase-app-compat.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@9.23.0/firebase-database-compat.min.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDrUT4Pr5a1DO5t8RNEONM04mKccOFoHyY",
+  authDomain: "achagi-45533.firebaseapp.com",
+  projectId: "achagi-45533",
+  storageBucket: "achagi-45533.firebasestorage.app",
+  messagingSenderId: "176597965724",
+  appId: "1:176597965724:web:6a87ef2a563746494e0659",
+  databaseURL: "https://achagi-45533-default-rtdb.firebaseio.com"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+</script>
 </head>
 <body>
+
+
+<!-- LOGIN -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <div class="login-logo">Acha<span>Gi</span></div>
+    <div class="login-sub">painel admin</div>
+    <input type="password" id="loginInput" placeholder="senha" onkeydown="if(event.key==='Enter')verificarSenha()">
+    <button class="login-btn" onclick="verificarSenha()">Entrar</button>
+    <div class="login-error" id="loginError">Senha incorreta 🔒</div>
+  </div>
+</div>
 
 <!-- SIDEBAR -->
 <aside class="sidebar">
@@ -230,6 +367,10 @@ textarea { resize: vertical; min-height: 80px; }
     <div class="nav-item" onclick="goTo('comentarios')">
       <span class="icon">💬</span> Comentários
       <span style="margin-left:auto;background:var(--pink);color:#fff;font-size:10px;padding:2px 7px;border-radius:10px;">2</span>
+    </div>
+    <div class="nav-group-title">Conteúdo</div>
+    <div class="nav-item" onclick="goTo('secoes')">
+      <span class="icon">🗂️</span> Seções
     </div>
     <div class="nav-group-title">Sistema</div>
     <div class="nav-item" onclick="goTo('configuracoes')">
@@ -254,6 +395,7 @@ textarea { resize: vertical; min-height: 80px; }
   <div class="topbar">
     <div class="topbar-title">Olá, <span>Gi</span> 👋</div>
     <div class="topbar-actions">
+      <button class="theme-toggle" id="adminThemeBtn" onclick="toggleAdminTheme()">🌙</button>
       <a href="index.html" target="_blank" class="btn btn-secondary btn-sm">Ver site →</a>
       <button class="btn btn-primary btn-sm" onclick="openModal()">+ Produto</button>
     </div>
@@ -402,6 +544,15 @@ textarea { resize: vertical; min-height: 80px; }
         <button class="btn btn-primary btn-sm" onclick="toggleAddComment()">+ Adicionar comentário</button>
       </div>
 
+      <!-- DÚVIDAS -->
+      <div class="table-card" style="margin-bottom:1.5rem">
+        <div class="table-header">
+          <h3>💬 Dúvidas do site</h3>
+          <span id="duvidas-count" style="font-size:12px;color:var(--gray-light)">carregando...</span>
+        </div>
+        <div id="duvidas-lista" style="padding:0.5rem 1.5rem 1rem"></div>
+      </div>
+
       <!-- FORM ADICIONAR -->
       <div class="form-card" id="add-comment-form" style="display:none;margin-bottom:1.5rem">
         <h3>Novo comentário</h3>
@@ -523,15 +674,31 @@ textarea { resize: vertical; min-height: 80px; }
           </div>
           <div class="form-group full">
             <label>Link do Pinterest</label>
-            <input type="text" placeholder="https://pinterest.com/seuuser">
+            <input type="text" id="cfg-pinterest" placeholder="https://pinterest.com/seuuser">
           </div>
           <div class="form-group full">
             <label>Link do TikTok</label>
-            <input type="text" placeholder="https://tiktok.com/@seuuser">
+            <input type="text" id="cfg-tiktok" placeholder="https://tiktok.com/@seuuser">
+          </div>
+          <div class="form-group full">
+            <label>Link do Instagram</label>
+            <input type="text" id="cfg-instagram" placeholder="https://instagram.com/seuuser">
           </div>
         </div>
         <div class="form-actions">
-          <button class="btn btn-primary">Salvar</button>
+          <button class="btn btn-primary" onclick="salvarConfig()">Salvar</button>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h3>Banner do site</h3>
+        <p style="font-size:13px;color:var(--gray);margin-bottom:1rem">Edite as mensagens que aparecem no banner rosa do topo. Uma por linha.</p>
+        <textarea id="cfg-banner" rows="5" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif">✨ novos achados toda semana
+🛍️ frete grátis Shein acima de R$99
+💸 até 20% de comissão Shein
+🖤 curadoria feita com amor pela Gi</textarea>
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="salvarConfig()">Salvar banner</button>
         </div>
       </div>
 
@@ -562,7 +729,7 @@ textarea { resize: vertical; min-height: 80px; }
       <div class="config-section">
         <h3>Status da conexão</h3>
         <p>Configure seu projeto Firebase para sincronizar produtos e cliques em tempo real.</p>
-        <p style="margin-bottom:0"><span class="status-dot disconnected"></span><strong>Desconectado</strong> — insira suas credenciais abaixo</p>
+        <p style="margin-bottom:0"><span class="status-dot connected"></span><strong>Conectado</strong> — Firebase Realtime Database ativo 🔥</p>
       </div>
 
       <div class="config-section">
@@ -792,10 +959,51 @@ textarea { resize: vertical; min-height: 80px; }
       </div>
     </div>
 
+
+    <!-- SEÇÕES -->
+    <div class="page" id="page-secoes">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+        <h2 style="font-family:'Playfair Display',serif;font-weight:400">Seções & Subsecções</h2>
+        <button class="btn btn-primary btn-sm" onclick="abrirModalSecao()">+ Nova seção</button>
+      </div>
+
+      <div id="secoes-lista"></div>
+    </div>
   </div><!-- /content -->
 </main>
 
-<!-- MODAL ADICIONAR PRODUTO -->
+
+
+    <!-- MODAL NOVA SEÇÃO -->
+    <div class="modal-overlay" id="secaoModal">
+      <div class="modal">
+        <div class="modal-title" id="secao-modal-title">Nova seção</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nome da seção</label>
+            <input type="text" id="secao-nome" placeholder="Ex: Acessórios">
+          </div>
+          <div class="form-group">
+            <label>Emoji</label>
+            <input type="text" id="secao-emoji" placeholder="Ex: 💍" maxlength="2">
+          </div>
+        </div>
+        <div style="margin-top:1.25rem">
+          <label style="font-size:12px;font-weight:500;color:var(--gray);display:block;margin-bottom:8px">Subsecções</label>
+          <div id="sub-lista" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px"></div>
+          <div style="display:flex;gap:8px">
+            <input type="text" id="sub-nova" placeholder="Ex: Brincos" style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif">
+            <button class="btn btn-secondary btn-sm" onclick="adicionarSub()">+ Add</button>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" onclick="fecharModalSecao()">Cancelar</button>
+          <button class="btn btn-primary" onclick="salvarSecao()">Salvar seção</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL ADICIONAR PRODUTO -->
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <div class="modal-title" id="modal-title">Adicionar produto</div>
@@ -818,7 +1026,7 @@ textarea { resize: vertical; min-height: 80px; }
       </div>
       <div class="form-group">
         <label>Seção</label>
-        <select id="modal-secao">
+        <select id="modal-secao" onchange="atualizarSubsecoes()">
           <option>Moda</option>
           <option>Casa & Deco</option>
           <option>Beleza</option>
@@ -853,18 +1061,62 @@ textarea { resize: vertical; min-height: 80px; }
         </select>
       </div>
       <div class="form-group">
+        <label>Preço original (riscado)</label>
+        <input type="number" id="modal-preco-original" placeholder="Ex: 199">
+      </div>
+      <div class="form-group">
+        <label>Preço afiliada (em destaque)</label>
+        <input type="number" id="modal-preco-afiliada" placeholder="Ex: 89">
+      </div>
+      <div class="form-group full">
         <label>Link de afiliada</label>
         <input type="text" id="modal-link" placeholder="https://..." oninput="checkGerarBtn()">
       </div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
-      <button class="btn btn-primary">Salvar produto</button>
+      <button class="btn btn-primary" onclick="salvarProduto()">Salvar produto</button>
     </div>
   </div>
 </div>
 
 <script>
+
+
+// MODO ESCURO ADMIN
+function toggleAdminTheme() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const newTheme = isDark ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', newTheme);
+  document.getElementById('adminThemeBtn').textContent = newTheme === 'dark' ? '☀️' : '🌙';
+  localStorage.setItem('achagi_theme', newTheme);
+}
+function initAdminTheme() {
+  const saved = localStorage.getItem('achagi_theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  const btn = document.getElementById('adminThemeBtn');
+  if (btn) btn.textContent = saved === 'dark' ? '☀️' : '🌙';
+}
+// LOGIN
+const SENHA = 'eusoulinda';
+function verificarSenha() {
+  const val = document.getElementById('loginInput').value;
+  if (val === SENHA) {
+    document.getElementById('loginOverlay').style.display = 'none';
+    sessionStorage.setItem('achagi_auth', '1');
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+    document.getElementById('loginInput').value = '';
+    document.getElementById('loginInput').focus();
+  }
+}
+// Check if already logged in
+if (sessionStorage.getItem('achagi_auth') === '1') {
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('loginOverlay').style.display = 'none';
+  });
+}
+
 // Navigation
 function goTo(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -874,27 +1126,392 @@ function goTo(page) {
 }
 
 
+
+
+
+// CONFIGURAÇÕES
+function salvarConfig() {
+  const config = JSON.parse(localStorage.getItem('achagi_config') || '{}');
+  const pinterest = document.getElementById('cfg-pinterest');
+  const tiktok = document.getElementById('cfg-tiktok');
+  const instagram = document.getElementById('cfg-instagram');
+  const banner = document.getElementById('cfg-banner');
+  if (pinterest) config.pinterest = pinterest.value.trim();
+  if (tiktok) config.tiktok = tiktok.value.trim();
+  if (instagram) config.instagram = instagram.value.trim();
+  if (banner) config.bannerMsgs = banner.value.split('\n').map(s=>s.trim()).filter(Boolean);
+  localStorage.setItem('achagi_config', JSON.stringify(config));
+  db.ref('config').set(config);
+  showToastAdmin('Configurações salvas! ✓');
+}
+
+function carregarConfig() {
+  const config = JSON.parse(localStorage.getItem('achagi_config') || '{}');
+  if (config.pinterest && document.getElementById('cfg-pinterest')) document.getElementById('cfg-pinterest').value = config.pinterest;
+  if (config.tiktok && document.getElementById('cfg-tiktok')) document.getElementById('cfg-tiktok').value = config.tiktok;
+  if (config.instagram && document.getElementById('cfg-instagram')) document.getElementById('cfg-instagram').value = config.instagram;
+  if (config.bannerMsgs && document.getElementById('cfg-banner')) document.getElementById('cfg-banner').value = config.bannerMsgs.join('\n');
+}
+
+// SEÇÕES
+const secoesDefault = {
+  'Moda': { emoji: '👗', subs: ['Casual', 'Festa', 'Academia'] },
+  'Casa & Deco': { emoji: '🏠', subs: ['Organização', 'Decoração', 'Cozinha'] },
+  'Beleza': { emoji: '💄', subs: ['Make', 'Skincare', 'Cabelo'] }
+};
+
+function getSecoes() {
+  return JSON.parse(localStorage.getItem('achagi_secoes') || JSON.stringify(secoesDefault));
+}
+function saveSecoes(secoes) {
+  localStorage.setItem('achagi_secoes', JSON.stringify(secoes));
+  atualizarDropdowns();
+}
+
+function renderSecoes() {
+  // Clean up any empty-named sections
+  const secoes = getSecoes();
+  let changed = false;
+  Object.keys(secoes).forEach(k => { if(!k.trim()) { delete secoes[k]; changed = true; }});
+  if(changed) saveSecoes(secoes);
+  const lista = document.getElementById('secoes-lista');
+  lista.innerHTML = Object.entries(secoes).map(([nome, data]) => `
+    <div class="table-card" style="margin-bottom:1rem">
+      <div class="table-header">
+        <h3>${data.emoji} ${nome}</h3>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary btn-sm" onclick="editarSecao('${nome}')">Editar</button>
+          ${!secoesDefault[nome] ? `<button class="btn btn-danger btn-sm" onclick="removerSecao('${nome}')">Remover</button>` : ''}
+        </div>
+      </div>
+      <div style="padding:1rem;display:flex;flex-wrap:wrap;gap:8px">
+        ${data.subs.map(s => `
+          <div style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:13px">
+            ${s}
+            <span onclick="removerSub('${nome}','${s}')" style="cursor:pointer;color:var(--gray-light);font-size:16px;line-height:1">&times;</span>
+          </div>`).join('')}
+        <button class="btn btn-secondary btn-sm" onclick="adicionarSubDireto('${nome}')">+ sub</button>
+      </div>
+    </div>`).join('');
+}
+
+let subsTemp = [];
+let editandoSecao = null;
+
+function abrirModalSecao() {
+  editandoSecao = null;
+  subsTemp = [];
+  document.getElementById('secao-nome').value = '';
+  document.getElementById('secao-emoji').value = '';
+  document.getElementById('secao-modal-title').textContent = 'Nova seção';
+  renderSubTemp();
+  document.getElementById('secaoModal').classList.add('open');
+}
+
+function editarSecao(nome) {
+  const secoes = getSecoes();
+  editandoSecao = nome;
+  subsTemp = [...secoes[nome].subs];
+  document.getElementById('secao-nome').value = nome;
+  document.getElementById('secao-emoji').value = secoes[nome].emoji;
+  document.getElementById('secao-modal-title').textContent = 'Editar seção';
+  renderSubTemp();
+  document.getElementById('secaoModal').classList.add('open');
+}
+
+function fecharModalSecao() {
+  document.getElementById('secaoModal').classList.remove('open');
+}
+
+function renderSubTemp() {
+  document.getElementById('sub-lista').innerHTML = subsTemp.map((s,i) => `
+    <div style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:13px">
+      ${s} <span onclick="subsTemp.splice(${i},1);renderSubTemp()" style="cursor:pointer;color:var(--gray-light);font-size:16px">&times;</span>
+    </div>`).join('');
+}
+
+function adicionarSub() {
+  const val = document.getElementById('sub-nova').value.trim();
+  if (!val) return;
+  subsTemp.push(val);
+  document.getElementById('sub-nova').value = '';
+  renderSubTemp();
+}
+
+function salvarSecao() {
+  const nome = document.getElementById('secao-nome').value.trim();
+  const emoji = document.getElementById('secao-emoji').value.trim() || '📁';
+  if (!nome) { alert('Coloca o nome da seção!'); return; }
+  const secoes = getSecoes();
+  if (editandoSecao && editandoSecao !== nome) delete secoes[editandoSecao];
+  secoes[nome] = { emoji, subs: subsTemp };
+  saveSecoes(secoes);
+  fecharModalSecao();
+  renderSecoes();
+  showToastAdmin('Seção salva! ✓');
+}
+
+function removerSecao(nome) {
+  if (!confirm(`Remover a seção "${nome}"?`)) return;
+  const secoes = getSecoes();
+  delete secoes[nome];
+  saveSecoes(secoes);
+  renderSecoes();
+  showToastAdmin('Seção removida!');
+}
+
+function removerSub(secao, sub) {
+  const secoes = getSecoes();
+  secoes[secao].subs = secoes[secao].subs.filter(s => s !== sub);
+  saveSecoes(secoes);
+  renderSecoes();
+}
+
+function adicionarSubDireto(secao) {
+  const sub = prompt(`Nova subsecção em "${secao}":`);
+  if (!sub) return;
+  const secoes = getSecoes();
+  secoes[secao].subs.push(sub);
+  saveSecoes(secoes);
+  renderSecoes();
+}
+
+function atualizarDropdowns() {
+  const secoes = getSecoes();
+  const secaoSel = document.getElementById('modal-secao');
+  const subSel = document.getElementById('modal-subsecao');
+  if (!secaoSel) return;
+  const secaoAtual = secaoSel.value;
+  secaoSel.innerHTML = Object.entries(secoes).map(([nome]) => `<option value="${nome}">${nome}</option>`).join('');
+  secaoSel.value = secaoAtual;
+  atualizarSubsecoes();
+}
+
+function atualizarSubsecoes() {
+  const secoes = getSecoes();
+  const secaoSel = document.getElementById('modal-secao');
+  const subSel = document.getElementById('modal-subsecao');
+  if (!secaoSel || !subSel) return;
+  const secao = secaoSel.value;
+  const subs = secoes[secao]?.subs || [];
+  subSel.innerHTML = subs.map(s => `<option value="${s}">${s}</option>`).join('');
+}
+
+
+// DÚVIDAS DO SITE
+function carregarDuvidas() {
+  db.ref('duvidas').on('value', snap => {
+    const duvidas = snap.val() || [];
+  const lista = document.getElementById('duvidas-lista');
+  const count = document.getElementById('duvidas-count');
+  if (!lista) return;
+  
+  if (duvidas.length === 0) {
+    lista.innerHTML = '<div style="font-size:13px;color:var(--gray-light);font-style:italic;padding:0.5rem 0">Nenhuma dúvida ainda.</div>';
+    if (count) count.textContent = '0 dúvidas';
+    return;
+  }
+
+  if (count) count.textContent = duvidas.length + ' dúvida' + (duvidas.length > 1 ? 's' : '');
+
+  lista.innerHTML = duvidas.map((d, i) => `
+    <div style="padding:1rem 0;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:flex-start">
+      <div style="width:36px;height:36px;border-radius:50%;background:var(--pink-light);color:var(--pink);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex-shrink:0">${d.nome[0].toUpperCase()}</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <span style="font-size:13px;font-weight:600">${d.nome}</span>
+          <span style="font-size:11px;color:var(--gray-light)">${d.data}</span>
+        </div>
+        <div style="font-size:13px;color:var(--gray)">${d.texto}</div>
+        ${d.resposta ? `<div style="margin-top:8px;background:var(--pink-light);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--pink-dark)"><strong>Sua resposta:</strong> ${d.resposta}</div>` : `
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <input type="text" id="resp-${i}" placeholder="Escreva sua resposta..." style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:'DM Sans',sans-serif">
+          <button class="btn btn-primary btn-sm" onclick="responderDuvida(${i})">Responder</button>
+          <button class="btn btn-danger btn-sm" onclick="removerDuvida(${i})">✕</button>
+        </div>`}
+      </div>
+    </div>`).join('');
+}
+
+function responderDuvida(idx) {
+  const resp = document.getElementById('resp-'+idx).value.trim();
+  if (!resp) return;
+  const duvidas = JSON.parse(localStorage.getItem('achagi_duvidas') || '[]');
+  duvidas[idx].resposta = resp;
+  localStorage.setItem('achagi_duvidas', JSON.stringify(duvidas));
+  db.ref('duvidas').set(duvidas);
+  carregarDuvidas();
+  showToastAdmin('Resposta salva! ✓');
+}
+
+function removerDuvida(idx) {
+  const duvidas = JSON.parse(localStorage.getItem('achagi_duvidas') || '[]');
+  duvidas.splice(idx, 1);
+  localStorage.setItem('achagi_duvidas', JSON.stringify(duvidas));
+  carregarDuvidas();
+}
+
+// SALVAR PRODUTO
+function salvarProduto() {
+  const nome = document.getElementById('modal-nome').value.trim();
+  const desc = document.getElementById('modal-desc').value.trim();
+  const secao = document.getElementById('modal-secao').value;
+  const subsecao = document.getElementById('modal-subsecao').value;
+  const loja = document.getElementById('modal-loja').value;
+  const link = document.getElementById('modal-link').value.trim();
+  const precoOriginal = document.getElementById('modal-preco-original').value.trim();
+  const precoAfiliada = document.getElementById('modal-preco-afiliada').value.trim();
+  const imgEl = document.getElementById('prod-preview-img');
+  const hasPhoto = document.getElementById('prod-photo-preview').style.display === 'block';
+
+  if (!nome) { alert('Coloca o nome do produto!'); return; }
+
+  // Save to localStorage
+  const produtos = JSON.parse(localStorage.getItem('achagi_produtos') || '[]');
+  const produto = {
+    id: Date.now(),
+    nome, desc, secao, subsecao, loja, link, precoOriginal, precoAfiliada,
+    foto: hasPhoto ? imgEl.src : null,
+    cliques: 0,
+    added: new Date().toISOString().split('T')[0]
+  };
+  produtos.push(produto);
+  // Save to Firebase
+  const prodRef = db.ref('produtos/' + produto.id);
+  prodRef.set(produto);
+  // Also keep localStorage as backup
+  localStorage.setItem('achagi_produtos', JSON.stringify(produtos));
+
+  // Add to table
+  adicionarNaTabela(produto);
+  closeModal();
+
+  // Reset form
+  document.getElementById('modal-nome').value = '';
+  document.getElementById('modal-desc').value = '';
+  document.getElementById('modal-link').value = '';
+  document.getElementById('modal-preco-original').value = '';
+  document.getElementById('modal-preco-afiliada').value = '';
+  removeProdPhoto();
+  document.getElementById('modal-title').textContent = 'Adicionar produto';
+  document.getElementById('btn-gerar').style.display = 'none';
+
+  if (editandoProdutoNome) {
+    // Update existing product in localStorage
+    let produtos = JSON.parse(localStorage.getItem('achagi_produtos') || '[]');
+    const idx = produtos.findIndex(x => x.nome === editandoProdutoNome);
+    if (idx !== -1) {
+      produtos[idx] = { ...produtos[idx], ...produto, nome: produto.nome };
+      // Save to Firebase
+  const prodRef = db.ref('produtos/' + produto.id);
+  prodRef.set(produto);
+  // Also keep localStorage as backup
+  localStorage.setItem('achagi_produtos', JSON.stringify(produtos));
+    }
+    // Update table row
+    const rows = document.querySelectorAll('#products-table-body tr');
+    rows.forEach(r => { if(r.querySelector('strong') && r.querySelector('strong').textContent === editandoProdutoNome) r.remove(); });
+    editandoProdutoNome = null;
+    showToastAdmin('Produto atualizado! ✓');
+  } else {
+    showToastAdmin('Produto salvo com sucesso! ✓');
+  }
+}
+
+function adicionarNaTabela(p) {
+  const tbody = document.getElementById('products-table-body');
+  const badgeClass = p.secao === 'Moda' ? 'badge-moda' : p.secao === 'Casa & Deco' ? 'badge-casa' : 'badge-beleza';
+  const lojaClass = p.loja === 'Shein' ? 'badge-shein' : p.loja === 'Shopee' ? 'badge-shopee' : 'badge-shein';
+  const fotoHtml = p.foto ? `<img src="${p.foto}" style="width:36px;height:36px;object-fit:cover;border-radius:6px;margin-right:8px;vertical-align:middle">` : '';
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>${fotoHtml}<strong>${p.nome}</strong></td>
+    <td><span class="badge ${badgeClass}">${p.secao}</span></td>
+    <td>${p.subsecao}</td>
+    <td><span class="badge ${lojaClass}">${p.loja}</span></td>
+    <td>0</td>
+    <td>
+      <button class="btn btn-secondary btn-sm" onclick="editProduto('${p.nome}','${p.secao}','${p.subsecao}','${p.loja}')">Editar</button>
+      <button class="btn btn-danger btn-sm" style="margin-left:4px" onclick="removeProduto(this)">Remover</button>
+    </td>`;
+  tbody.prepend(tr);
+}
+
+function showToastAdmin(msg) {
+  const existing = document.getElementById('toast-admin');
+  if (existing) existing.remove();
+  const t = document.createElement('div');
+  t.id = 'toast-admin';
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:10px 20px;border-radius:24px;font-size:13px;z-index:9999;white-space:nowrap;font-family:DM Sans,sans-serif';
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2500);
+}
+
+// Carregar produtos salvos ao abrir
+function carregarProdutosSalvos() {
+  const produtos = JSON.parse(localStorage.getItem('achagi_produtos') || '[]');
+  produtos.forEach(p => adicionarNaTabela(p));
+}
+
 // Edit produto
+let editandoProdutoNome = null;
+
 function editProduto(nome, secao, sub, loja) {
+  editandoProdutoNome = nome;
   document.getElementById('modal-title').textContent = 'Editar produto';
+  
+  // Load full product data from localStorage
+  const produtos = JSON.parse(localStorage.getItem('achagi_produtos') || '[]');
+  const p = produtos.find(x => x.nome === nome);
+  
   document.getElementById('modal-nome').value = nome;
-  document.getElementById('modal-secao').value = secao === 'Moda' ? 'Moda' : secao === 'Casa' ? 'Casa & Deco' : 'Beleza';
+  document.getElementById('modal-desc').value = p ? p.desc || '' : '';
+  document.getElementById('modal-link').value = p ? p.link || '' : '';
+  
+  if (p && p.precoOriginal) document.getElementById('modal-preco-original').value = p.precoOriginal;
+  if (p && p.precoAfiliada) document.getElementById('modal-preco-afiliada').value = p.precoAfiliada;
+
+  atualizarDropdowns();
+  document.getElementById('modal-secao').value = secao === 'Casa' ? 'Casa & Deco' : secao;
+  atualizarSubsecoes();
+  
   const subSelect = document.getElementById('modal-subsecao');
   for(let i=0; i<subSelect.options.length; i++) {
-    if(subSelect.options[i].value === sub || subSelect.options[i].text === sub) { subSelect.selectedIndex = i; break; }
+    if(subSelect.options[i].text === sub) { subSelect.selectedIndex = i; break; }
   }
   const lojaSelect = document.getElementById('modal-loja');
   for(let i=0; i<lojaSelect.options.length; i++) {
     if(lojaSelect.options[i].text === loja) { lojaSelect.selectedIndex = i; break; }
   }
+
+  // Show photo if exists
+  if (p && p.foto) {
+    document.getElementById('prod-preview-img').src = p.foto;
+    document.getElementById('prod-photo-preview').style.display = 'block';
+    document.getElementById('prod-photo-drop').style.display = 'none';
+  }
+
+  checkGerarBtn();
   openModal();
 }
 
 function removeProduto(btn) {
   if(confirm('Remover este produto?')) {
-    btn.closest('tr').style.opacity = '0.4';
-    btn.closest('tr').style.pointerEvents = 'none';
-    setTimeout(()=>btn.closest('tr').remove(), 300);
+    const tr = btn.closest('tr');
+    const nome = tr.querySelector('strong').textContent;
+    // Remove from localStorage
+    let produtos = JSON.parse(localStorage.getItem('achagi_produtos') || '[]');
+    produtos = produtos.filter(p => p.nome !== nome);
+    // Save to Firebase
+  const prodRef = db.ref('produtos/' + produto.id);
+  prodRef.set(produto);
+  // Also keep localStorage as backup
+  localStorage.setItem('achagi_produtos', JSON.stringify(produtos));
+    tr.style.opacity = '0.4';
+    tr.style.pointerEvents = 'none';
+    setTimeout(()=>tr.remove(), 300);
+    showToastAdmin('Produto removido!');
   }
 }
 
@@ -904,6 +1521,7 @@ function openModal() {
 }
 function closeModal() {
   document.getElementById('modal').classList.remove('open');
+  editandoProdutoNome = null;
 }
 document.getElementById('modal').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
