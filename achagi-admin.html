@@ -188,7 +188,9 @@ textarea { resize: vertical; min-height: 80px; }
 .modal-overlay {
   display: none; position: fixed; inset: 0;
   background: rgba(0,0,0,0.4); z-index: 200;
-  align-items: center; justify-content: center;
+  align-items: flex-start; justify-content: center;
+  padding: 20px 0; overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .modal-overlay.open { display: flex; }
 .modal { overflow-y: auto; max-height: 90vh;
@@ -1377,8 +1379,17 @@ function salvarProduto() {
   };
   produtos.push(produto);
   // Save to Firebase
+  // Save to Firebase without base64 foto (too large)
+  const prodFirebase = Object.assign({}, produto);
+  if (prodFirebase.foto && prodFirebase.foto.startsWith('data:')) {
+    prodFirebase.foto = null; // Remove base64, keep only URL links
+  }
   const prodRef = db.ref('produtos/' + produto.id);
-  prodRef.set(produto);
+  prodRef.set(prodFirebase).then(function() {
+    console.log('Produto salvo no Firebase!');
+  }).catch(function(err) {
+    console.error('Erro Firebase:', err);
+  });
   // Also keep localStorage as backup
   localStorage.setItem('achagi_produtos', JSON.stringify(produtos));
 
