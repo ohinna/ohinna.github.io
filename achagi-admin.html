@@ -321,6 +321,30 @@ textarea { resize: vertical; min-height: 80px; }
   .charts-grid { grid-template-columns: 1fr; }
 }
 </style>
+<script>
+const SENHA = 'eusoulinda';
+function verificarSenha() {
+  var val = document.getElementById('loginInput').value;
+  var overlay = document.getElementById('loginOverlay');
+  var errEl = document.getElementById('loginError');
+  if (val === SENHA) {
+    overlay.style.display = 'none';
+    try { sessionStorage.setItem('achagi_auth', '1'); } catch(e) {}
+  } else {
+    if (errEl) { errEl.style.display = 'block'; }
+    document.getElementById('loginInput').value = '';
+    document.getElementById('loginInput').focus();
+  }
+}
+try {
+  if (sessionStorage.getItem('achagi_auth') === '1') {
+    document.addEventListener('DOMContentLoaded', function() {
+      var ov = document.getElementById('loginOverlay');
+      if (ov) ov.style.display = 'none';
+    });
+  }
+} catch(e) {}
+</script>
 <script src="https://cdn.jsdelivr.net/npm/firebase@9.23.0/firebase-app-compat.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/firebase@9.23.0/firebase-database-compat.min.js"></script>
 <script>
@@ -1100,31 +1124,7 @@ function initAdminTheme() {
   if (btn) btn.textContent = saved === 'dark' ? '☀️' : '🌙';
 }
 // LOGIN
-const SENHA = 'eusoulinda';
-function verificarSenha() {
-  try {
-    var val = document.getElementById('loginInput').value;
-    var overlay = document.getElementById('loginOverlay');
-    var errEl = document.getElementById('loginError');
-    if (val === SENHA) {
-      overlay.style.display = 'none';
-      try { sessionStorage.setItem('achagi_auth', '1'); } catch(e) {}
-    } else {
-      if (errEl) errEl.style.display = 'block';
-      document.getElementById('loginInput').value = '';
-      document.getElementById('loginInput').focus();
-    }
-  } catch(e) { console.error('Login error:', e); }
-}
-// Check if already logged in
-try {
-  if (sessionStorage.getItem('achagi_auth') === '1') {
-    document.addEventListener('DOMContentLoaded', function() {
-      var ov = document.getElementById('loginOverlay');
-      if (ov) ov.style.display = 'none';
-    });
-  }
-} catch(e) {}
+// Login handled in separate script above
 
 // Navigation
 function goTo(page) {
