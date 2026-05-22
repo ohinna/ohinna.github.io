@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AchaGi — Painel Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --pink: #D4537E;
+  --pink-light: #FBEAF0;
+  --pink-dark: #993556;
+  --green: #639922;
+  --green-light: #EAF3DE;
+  --amber: #BA7517;
+  --amber-light: #FAEEDA;
+  --black: #111;
+  --gray: #555;
+  --gray-light: #999;
+  --border: #e8e8e8;
+  --bg: #f7f6f3;
+  --white: #fff;
+  --sidebar-w: 220px;
+  --shadow: 0 2px 16px rgba(0,0,0,0.07);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--black); display: flex; min-height: 100vh; }
+
+/* SIDEBAR */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+}
+.sidebar-logo {
+  padding: 1.75rem 1.5rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-logo .logo { font-family: 'Playfair Display', serif; font-size: 22px; letter-spacing: 2px; }
+.sidebar-logo .logo span { color: var(--pink); font-style: italic; }
+.sidebar-logo .sub { font-size: 11px; color: var(--gray-light); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+.sidebar-nav { flex: 1; padding: 1rem 0; }
+.nav-group-title { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--gray-light); padding: 0.75rem 1.5rem 0.25rem; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 1.5rem;
+  font-size: 13px; color: var(--gray);
+  cursor: pointer; border-left: 2px solid transparent;
+  transition: all 0.15s;
+}
+.nav-item:hover { color: var(--black); background: var(--bg); }
+.nav-item.active { color: var(--pink); border-left-color: var(--pink); background: var(--pink-light); font-weight: 500; }
+.nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
+.sidebar-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); font-size: 11px; color: var(--gray-light); }
+
+/* MAIN */
+.main { margin-left: var(--sidebar-w); flex: 1; min-width: 0; }
+.topbar {
+  background: var(--white); border-bottom: 1px solid var(--border);
+  padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 50;
+}
+.topbar-title { font-size: 16px; font-weight: 600; }
+.topbar-title span { font-family: 'Playfair Display', serif; font-weight: 400; font-style: italic; color: var(--pink); }
+.topbar-actions { display: flex; gap: 10px; align-items: center; }
+.btn {
+  padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 500;
+  cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+}
+.btn-primary { background: var(--pink); color: #fff; }
+.btn-primary:hover { background: var(--pink-dark); }
+.btn-secondary { background: var(--bg); color: var(--gray); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--border); }
+.btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 6px; }
+.btn-danger { background: #fee2e2; color: #dc2626; }
+.btn-danger:hover { background: #fecaca; }
+
+.content { padding: 2rem; }
+.page { display: none; }
+.page.active { display: block; }
+
+/* CARDS */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+.stat-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1.25rem;
+  border-top: 3px solid var(--pink);
+}
+.stat-card.green { border-top-color: var(--green); }
+.stat-card.amber { border-top-color: var(--amber); }
+.stat-card.gray { border-top-color: #aaa; }
+.stat-label { font-size: 11px; color: var(--gray-light); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+.stat-value { font-size: 28px; font-weight: 600; font-family: 'Playfair Display', serif; }
+.stat-value.pink { color: var(--pink); }
+.stat-value.green { color: var(--green); }
+.stat-value.amber { color: var(--amber); }
+.stat-sub { font-size: 12px; color: var(--gray-light); margin-top: 4px; }
+
+/* CHARTS */
+.charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 2rem; }
+.chart-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1.5rem;
+}
+.chart-title { font-size: 13px; font-weight: 600; margin-bottom: 1.25rem; color: var(--black); }
+.chart-title span { color: var(--gray-light); font-weight: 400; margin-left: 6px; font-size: 12px; }
+
+/* TABLE */
+.table-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden; margin-bottom: 2rem;
+}
+.table-header {
+  padding: 1rem 1.5rem; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.table-header h3 { font-size: 14px; font-weight: 600; }
+table { width: 100%; border-collapse: collapse; }
+th { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--gray-light); padding: 10px 1.5rem; text-align: left; background: var(--bg); border-bottom: 1px solid var(--border); }
+td { padding: 12px 1.5rem; font-size: 13px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #fafaf8; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+.badge-moda { background: var(--pink-light); color: var(--pink-dark); }
+.badge-casa { background: var(--green-light); color: var(--green); }
+.badge-beleza { background: var(--amber-light); color: var(--amber); }
+.badge-shein { background: #f3f0ff; color: #5b21b6; }
+.badge-shopee { background: #fff3ec; color: #c2410c; }
+
+/* FORM */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group.full { grid-column: 1/-1; }
+label { font-size: 12px; font-weight: 500; color: var(--gray); }
+input, select, textarea {
+  padding: 9px 12px; border: 1px solid var(--border);
+  border-radius: 8px; font-size: 13px; font-family: 'DM Sans', sans-serif;
+  background: var(--white); color: var(--black);
+  transition: border-color 0.15s;
+}
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--pink); }
+textarea { resize: vertical; min-height: 80px; }
+.form-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;
+}
+.form-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 1.25rem; }
+.form-actions { display: flex; gap: 10px; margin-top: 1.25rem; }
+
+/* COMMENTS */
+.comment-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1.25rem; margin-bottom: 12px;
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.comment-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--pink-light); color: var(--pink);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 600; flex-shrink: 0;
+}
+.comment-body { flex: 1; }
+.comment-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.comment-name { font-size: 13px; font-weight: 600; }
+.comment-date { font-size: 12px; color: var(--gray-light); }
+.comment-text { font-size: 13px; color: var(--gray); line-height: 1.5; }
+.comment-actions { display: flex; gap: 8px; margin-top: 8px; }
+.badge-pending { background: #fef3c7; color: #92400e; }
+.badge-approved { background: var(--green-light); color: var(--green); }
+
+/* FIREBASE CONFIG */
+.config-section { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+.config-section h3 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.config-section p { font-size: 13px; color: var(--gray); margin-bottom: 1.25rem; }
+.code-block { background: #1a1a2e; color: #e8e8f0; padding: 1rem; border-radius: 8px; font-size: 12px; font-family: monospace; line-height: 1.6; margin-bottom: 1rem; overflow-x: auto; }
+.status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+.status-dot.connected { background: var(--green); }
+.status-dot.disconnected { background: #dc2626; }
+.status-dot.pending { background: var(--amber); }
+
+/* MODAL */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.4); z-index: 200;
+  align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--white); border-radius: 16px;
+  padding: 2rem; width: 500px; max-width: 90vw;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+.modal-title { font-size: 18px; font-family: 'Playfair Display', serif; margin-bottom: 1.5rem; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 1.5rem; }
+
+/* EMPTY STATE */
+.empty-state { text-align: center; padding: 3rem; color: var(--gray-light); }
+.empty-state .icon { font-size: 40px; margin-bottom: 1rem; }
+.empty-state p { font-size: 14px; }
+
+@media (max-width: 900px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .charts-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo">Acha<span>Gi</span></div>
+    <div class="sub">painel admin</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-group-title">Visão geral</div>
+    <div class="nav-item active" onclick="goTo('dashboard')">
+      <span class="icon">📊</span> Dashboard
+    </div>
+    <div class="nav-group-title">Conteúdo</div>
+    <div class="nav-item" onclick="goTo('produtos')">
+      <span class="icon">🛍️</span> Produtos
+    </div>
+    <div class="nav-item" onclick="goTo('comentarios')">
+      <span class="icon">💬</span> Comentários
+      <span style="margin-left:auto;background:var(--pink);color:#fff;font-size:10px;padding:2px 7px;border-radius:10px;">2</span>
+    </div>
+    <div class="nav-group-title">Sistema</div>
+    <div class="nav-item" onclick="goTo('configuracoes')">
+      <span class="icon">⚙️</span> Configurações
+    </div>
+    <div class="nav-item" onclick="goTo('firebase')">
+      <span class="icon">🔥</span> Firebase
+    </div>
+    <div class="nav-group-title">Automação</div>
+    <div class="nav-item" onclick="goTo('relatorio')">
+      <span class="icon">📊</span> Relatório semanal
+    </div>
+    <div class="nav-item" onclick="goTo('agendamento')">
+      <span class="icon">🗓️</span> Agendamento
+    </div>
+  </nav>
+  <div class="sidebar-footer">AchaGi v1.0 · 2025</div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title">Olá, <span>Gi</span> 👋</div>
+    <div class="topbar-actions">
+      <a href="achagi.html" target="_blank" class="btn btn-secondary btn-sm">Ver site →</a>
+      <button class="btn btn-primary btn-sm" onclick="openModal()">+ Produto</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Cliques hoje</div>
+          <div class="stat-value pink">47</div>
+          <div class="stat-sub">↑ 12% vs ontem</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Cliques no mês</div>
+          <div class="stat-value green">1.284</div>
+          <div class="stat-sub">↑ 38% vs mês passado</div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-label">Estimativa comissão</div>
+          <div class="stat-value amber">R$ 89</div>
+          <div class="stat-sub">baseado em 8% média</div>
+        </div>
+        <div class="stat-card gray">
+          <div class="stat-label">Produtos ativos</div>
+          <div class="stat-value" style="color:#555">3</div>
+          <div class="stat-sub">em 3 seções</div>
+        </div>
+      </div>
+
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-title">Cliques por dia <span>últimos 7 dias</span></div>
+          <canvas id="clicksChart" height="100"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Por seção <span>este mês</span></div>
+          <canvas id="sectionChart" height="180"></canvas>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header">
+          <h3>Produtos mais clicados</h3>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Produto</th>
+              <th>Seção</th>
+              <th>Loja</th>
+              <th>Cliques</th>
+              <th>Est. comissão</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Corset couro tomara que caia</strong></td>
+              <td><span class="badge badge-moda">Moda · Festa</span></td>
+              <td><span class="badge badge-shein">Shein</span></td>
+              <td>312</td>
+              <td style="color:var(--green);font-weight:500">R$ 28</td>
+            </tr>
+            <tr>
+              <td><strong>Jaqueta fitness preta zíper</strong></td>
+              <td><span class="badge badge-moda">Moda · Academia</span></td>
+              <td><span class="badge badge-shein">Shein</span></td>
+              <td>198</td>
+              <td style="color:var(--green);font-weight:500">R$ 18</td>
+            </tr>
+            <tr>
+              <td><strong>Porta-coisa dourado decorado</strong></td>
+              <td><span class="badge badge-casa">Casa · Organização</span></td>
+              <td><span class="badge badge-shopee">Shopee</span></td>
+              <td>87</td>
+              <td style="color:var(--green);font-weight:500">R$ 6</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PRODUTOS -->
+    <div class="page" id="page-produtos">
+      <div class="table-card">
+        <div class="table-header">
+          <h3>Todos os produtos</h3>
+          <button class="btn btn-primary btn-sm" onclick="openModal()">+ Adicionar</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Seção</th>
+              <th>Subsecção</th>
+              <th>Loja</th>
+              <th>Cliques</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="products-table-body">
+            <tr>
+              <td><strong>Corset couro tomara que caia</strong></td>
+              <td><span class="badge badge-moda">Moda</span></td>
+              <td>Festa</td>
+              <td><span class="badge badge-shein">Shein</span></td>
+              <td>312</td>
+              <td>
+                <button class="btn btn-secondary btn-sm" onclick="editProduto('Corset couro tomara que caia','Moda','Festa','Shein')">Editar</button>
+                <button class="btn btn-danger btn-sm" style="margin-left:4px" onclick="removeProduto(this)">Remover</button>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Jaqueta fitness preta zíper</strong></td>
+              <td><span class="badge badge-moda">Moda</span></td>
+              <td>Academia</td>
+              <td><span class="badge badge-shein">Shein</span></td>
+              <td>198</td>
+              <td>
+                <button class="btn btn-secondary btn-sm" onclick="editProduto('Jaqueta fitness preta zíper','Moda','Academia','Shein')">Editar</button>
+                <button class="btn btn-danger btn-sm" style="margin-left:4px" onclick="removeProduto(this)">Remover</button>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Porta-coisa dourado decorado</strong></td>
+              <td><span class="badge badge-casa">Casa</span></td>
+              <td>Organização</td>
+              <td><span class="badge badge-shopee">Shopee</span></td>
+              <td>87</td>
+              <td>
+                <button class="btn btn-secondary btn-sm" onclick="editProduto('Porta-coisa dourado decorado','Casa','Organização','Shopee')">Editar</button>
+                <button class="btn btn-danger btn-sm" style="margin-left:4px" onclick="removeProduto(this)">Remover</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- COMENTARIOS -->
+    <div class="page" id="page-comentarios">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1.5rem">
+        <h2 style="font-family:'Playfair Display',serif;font-weight:400">Comentários <span style="font-size:14px;font-family:'DM Sans',sans-serif;color:var(--gray-light)" id="pending-count">2 pendentes</span></h2>
+        <button class="btn btn-primary btn-sm" onclick="toggleAddComment()">+ Adicionar comentário</button>
+      </div>
+
+      <!-- FORM ADICIONAR -->
+      <div class="form-card" id="add-comment-form" style="display:none;margin-bottom:1.5rem">
+        <h3>Novo comentário</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nome</label>
+            <input type="text" id="new-name" placeholder="Ex: Ana Paula">
+          </div>
+          <div class="form-group">
+            <label>Produto relacionado</label>
+            <select id="new-product">
+              <option value="">— nenhum —</option>
+              <option>Corset couro tomara que caia</option>
+              <option>Jaqueta fitness preta zíper</option>
+              <option>Porta-coisa dourado decorado</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label>Comentário</label>
+            <textarea id="new-text" placeholder="O que a pessoa disse sobre o produto..."></textarea>
+          </div>
+          <div class="form-group full">
+            <label>Foto (opcional)</label>
+            <div id="photo-drop" onclick="document.getElementById('photo-input').click()" style="border:2px dashed var(--border);border-radius:10px;padding:1.5rem;text-align:center;cursor:pointer;transition:border-color 0.2s;background:var(--bg)">
+              <div style="font-size:28px;margin-bottom:6px">📷</div>
+              <div style="font-size:13px;color:var(--gray-light)">Clique para adicionar foto do produto ou do cliente</div>
+              <input type="file" id="photo-input" accept="image/*" style="display:none" onchange="previewPhoto(event)">
+            </div>
+            <div id="photo-preview" style="display:none;margin-top:10px;position:relative;display:none">
+              <img id="preview-img" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px;border:1px solid var(--border)">
+              <button onclick="removePhoto()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:14px">✕</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Nota (estrelas)</label>
+            <select id="new-stars">
+              <option value="5">⭐⭐⭐⭐⭐ 5 estrelas</option>
+              <option value="4">⭐⭐⭐⭐ 4 estrelas</option>
+              <option value="3">⭐⭐⭐ 3 estrelas</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="new-status">
+              <option value="approved">Aprovado</option>
+              <option value="pending">Pendente</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-secondary" onclick="toggleAddComment()">Cancelar</button>
+          <button class="btn btn-primary" onclick="addComment()">Salvar comentário</button>
+        </div>
+      </div>
+
+      <!-- LISTA DE COMENTÁRIOS -->
+      <div id="comments-list">
+        <div class="comment-card" data-status="pending">
+          <div class="comment-avatar">A</div>
+          <div class="comment-body">
+            <div class="comment-meta">
+              <span class="comment-name">Ana Paula</span>
+              <span class="badge badge-pending">Pendente</span>
+              <span class="comment-date">há 2h</span>
+            </div>
+            <div class="comment-text">Amei esse corset! Já comprei e chegou super rápido. Vale muito a pena! 🖤</div>
+            <div style="font-size:13px;color:var(--amber);margin-top:4px">⭐⭐⭐⭐⭐</div>
+            <div class="comment-actions">
+              <button class="btn btn-secondary btn-sm" onclick="approveComment(this)">✓ Aprovar</button>
+              <button class="btn btn-danger btn-sm" onclick="removeComment(this)">✕ Rejeitar</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="comment-card" data-status="pending">
+          <div class="comment-avatar" style="background:var(--green-light);color:var(--green)">M</div>
+          <div class="comment-body">
+            <div class="comment-meta">
+              <span class="comment-name">Mariana</span>
+              <span class="badge badge-pending">Pendente</span>
+              <span class="comment-date">há 5h</span>
+            </div>
+            <div class="comment-text">A jaqueta fitness é perfeita! Tamanho bate certinho com a tabela.</div>
+            <div style="font-size:13px;color:var(--amber);margin-top:4px">⭐⭐⭐⭐⭐</div>
+            <div class="comment-actions">
+              <button class="btn btn-secondary btn-sm" onclick="approveComment(this)">✓ Aprovar</button>
+              <button class="btn btn-danger btn-sm" onclick="removeComment(this)">✕ Rejeitar</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="comment-card" data-status="approved">
+          <div class="comment-avatar" style="background:var(--amber-light);color:var(--amber)">C</div>
+          <div class="comment-body">
+            <div class="comment-meta">
+              <span class="comment-name">Carol</span>
+              <span class="badge badge-approved">Aprovado</span>
+              <span class="comment-date">ontem</span>
+            </div>
+            <div class="comment-text">Site lindo e os achados são incríveis! Já salvei vários itens 😍</div>
+            <div style="font-size:13px;color:var(--amber);margin-top:4px">⭐⭐⭐⭐⭐</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFIGURAÇÕES -->
+    <div class="page" id="page-configuracoes">
+      <div class="form-card">
+        <h3>Informações do site</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nome do site</label>
+            <input type="text" value="AchaGi">
+          </div>
+          <div class="form-group">
+            <label>Tagline</label>
+            <input type="text" value="achados que valem cada clique">
+          </div>
+          <div class="form-group full">
+            <label>Link do Pinterest</label>
+            <input type="text" placeholder="https://pinterest.com/seuuser">
+          </div>
+          <div class="form-group full">
+            <label>Link do TikTok</label>
+            <input type="text" placeholder="https://tiktok.com/@seuuser">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary">Salvar</button>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h3>Comissões médias (para estimativa)</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Shein (%)</label>
+            <input type="number" value="10">
+          </div>
+          <div class="form-group">
+            <label>Shopee (%)</label>
+            <input type="number" value="6">
+          </div>
+          <div class="form-group">
+            <label>Mercado Livre (%)</label>
+            <input type="number" value="8">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary">Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FIREBASE -->
+    <div class="page" id="page-firebase">
+      <div class="config-section">
+        <h3>Status da conexão</h3>
+        <p>Configure seu projeto Firebase para sincronizar produtos e cliques em tempo real.</p>
+        <p style="margin-bottom:0"><span class="status-dot disconnected"></span><strong>Desconectado</strong> — insira suas credenciais abaixo</p>
+      </div>
+
+      <div class="config-section">
+        <h3>Como configurar</h3>
+        <p>Siga esses passos:</p>
+        <div style="font-size:13px;color:var(--gray);line-height:2">
+          1. Acesse <strong>firebase.google.com</strong> e crie um projeto chamado <strong>achagi</strong><br>
+          2. Vá em <strong>Firestore Database</strong> → Criar banco → Modo teste<br>
+          3. Clique na engrenagem ⚙️ → <strong>Configurações do projeto</strong><br>
+          4. Role até <strong>Seus apps</strong> → clique em <strong>&lt;/&gt;</strong> → copie o firebaseConfig<br>
+          5. Cole no campo abaixo e salve
+        </div>
+      </div>
+
+      <div class="config-section">
+        <h3>Suas credenciais Firebase</h3>
+        <p>Cole aqui o objeto <code>firebaseConfig</code> do seu projeto.</p>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>API Key</label>
+            <input type="text" placeholder="AIzaSy...">
+          </div>
+          <div class="form-group">
+            <label>Auth Domain</label>
+            <input type="text" placeholder="achagi.firebaseapp.com">
+          </div>
+          <div class="form-group">
+            <label>Project ID</label>
+            <input type="text" placeholder="achagi">
+          </div>
+          <div class="form-group">
+            <label>App ID</label>
+            <input type="text" placeholder="1:xxx:web:xxx">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary">Conectar Firebase</button>
+          <button class="btn btn-secondary">Testar conexão</button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- RELATÓRIO SEMANAL -->
+    <div class="page" id="page-relatorio">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+        <h2 style="font-family:'Playfair Display',serif;font-weight:400">Relatório semanal</h2>
+        <div style="display:flex;gap:8px">
+          <select class="btn btn-secondary btn-sm" id="relatorio-semana" onchange="renderRelatorio()">
+            <option value="0">Esta semana</option>
+            <option value="1">Semana passada</option>
+            <option value="2">Há 2 semanas</option>
+          </select>
+          <button class="btn btn-primary btn-sm" onclick="exportRelatorio()">⬇ Exportar</button>
+        </div>
+      </div>
+
+      <!-- resumo -->
+      <div class="stats-grid" style="margin-bottom:1.5rem" id="rel-stats">
+        <div class="stat-card">
+          <div class="stat-label">Cliques na semana</div>
+          <div class="stat-value pink" id="rel-cliques">362</div>
+          <div class="stat-sub" id="rel-cliques-var">↑ 18% vs semana anterior</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Produto mais clicado</div>
+          <div class="stat-value green" style="font-size:16px;margin-top:4px" id="rel-top">Corset couro</div>
+          <div class="stat-sub" id="rel-top-n">312 cliques</div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-label">Estimativa comissão</div>
+          <div class="stat-value amber" id="rel-comissao">R$ 31</div>
+          <div class="stat-sub" id="rel-com-var">↑ 22% vs semana anterior</div>
+        </div>
+        <div class="stat-card gray">
+          <div class="stat-label">Novos produtos</div>
+          <div class="stat-value" style="color:#555" id="rel-novos">2</div>
+          <div class="stat-sub">adicionados na semana</div>
+        </div>
+      </div>
+
+      <!-- gráfico semanal -->
+      <div class="chart-card" style="margin-bottom:1.5rem">
+        <div class="chart-title">Cliques por dia <span id="rel-periodo">18–24 mai 2025</span></div>
+        <canvas id="relatorioChart" height="90"></canvas>
+      </div>
+
+      <!-- tabela produtos -->
+      <div class="table-card">
+        <div class="table-header"><h3>Desempenho por produto</h3></div>
+        <table>
+          <thead>
+            <tr>
+              <th>Produto</th>
+              <th>Cliques</th>
+              <th>Vs semana ant.</th>
+              <th>Est. comissão</th>
+              <th>Conversão</th>
+            </tr>
+          </thead>
+          <tbody id="rel-table">
+            <tr>
+              <td><strong>Corset couro tomara que caia</strong></td>
+              <td>312</td>
+              <td style="color:var(--green)">↑ 24%</td>
+              <td style="color:var(--green);font-weight:500">R$ 28</td>
+              <td>3.2%</td>
+            </tr>
+            <tr>
+              <td><strong>Jaqueta fitness preta zíper</strong></td>
+              <td>198</td>
+              <td style="color:var(--green)">↑ 11%</td>
+              <td style="color:var(--green);font-weight:500">R$ 18</td>
+              <td>2.8%</td>
+            </tr>
+            <tr>
+              <td><strong>Porta-coisa dourado decorado</strong></td>
+              <td>87</td>
+              <td style="color:#dc2626">↓ 5%</td>
+              <td style="color:var(--green);font-weight:500">R$ 6</td>
+              <td>1.9%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- insight automático -->
+      <div style="background:var(--pink-light);border:1px solid #f4c0d1;border-radius:12px;padding:1.25rem;margin-top:1rem">
+        <div style="font-size:13px;font-weight:600;color:var(--pink-dark);margin-bottom:6px">💡 Insight da semana</div>
+        <div style="font-size:13px;color:var(--pink-dark)" id="rel-insight">
+          O Corset couro teve 24% mais cliques que na semana passada — considere adicionar mais produtos de <strong>Festa</strong> para aproveitar o momentum! Quinta e sexta foram os dias com mais acessos.
+        </div>
+      </div>
+    </div>
+
+    <!-- AGENDAMENTO -->
+    <div class="page" id="page-agendamento">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+        <h2 style="font-family:'Playfair Display',serif;font-weight:400">Agendamento de posts</h2>
+        <button class="btn btn-primary btn-sm" onclick="openAgendModal()">+ Agendar produto</button>
+      </div>
+
+      <!-- calendário mini -->
+      <div class="chart-card" style="margin-bottom:1.5rem">
+        <div class="chart-title">Maio 2025 <span>clique num dia para ver o que está agendado</span></div>
+        <div id="mini-cal" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:8px"></div>
+        <div style="display:flex;gap:16px;margin-top:12px;font-size:11px;color:var(--gray-light)">
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--pink);margin-right:4px"></span>tem post</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--green);margin-right:4px"></span>publicado</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--border);margin-right:4px"></span>vazio</span>
+        </div>
+      </div>
+
+      <!-- lista agendados -->
+      <div class="table-card">
+        <div class="table-header"><h3>Posts agendados</h3></div>
+        <table>
+          <thead>
+            <tr><th>Data</th><th>Produto</th><th>Seção</th><th>Status</th><th>Ações</th></tr>
+          </thead>
+          <tbody id="agenda-list">
+            <tr>
+              <td><strong>22 mai</strong> <span style="font-size:11px;color:var(--gray-light)">14:00</span></td>
+              <td>Corset couro tomara que caia</td>
+              <td><span class="badge badge-moda">Moda · Festa</span></td>
+              <td><span class="badge" style="background:#fef3c7;color:#92400e">⏳ Agendado</span></td>
+              <td><button class="btn btn-danger btn-sm">Cancelar</button></td>
+            </tr>
+            <tr>
+              <td><strong>24 mai</strong> <span style="font-size:11px;color:var(--gray-light)">10:00</span></td>
+              <td>Novo achado Shopee</td>
+              <td><span class="badge badge-casa">Casa · Deco</span></td>
+              <td><span class="badge" style="background:#fef3c7;color:#92400e">⏳ Agendado</span></td>
+              <td><button class="btn btn-danger btn-sm">Cancelar</button></td>
+            </tr>
+            <tr>
+              <td><strong>18 mai</strong> <span style="font-size:11px;color:var(--gray-light)">09:00</span></td>
+              <td>Jaqueta fitness preta zíper</td>
+              <td><span class="badge badge-moda">Moda · Academia</span></td>
+              <td><span class="badge badge-approved">✓ Publicado</span></td>
+              <td><button class="btn btn-secondary btn-sm">Ver</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MODAL AGENDAR -->
+    <div class="modal-overlay" id="agendModal">
+      <div class="modal">
+        <div class="modal-title">Agendar produto</div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Produto</label>
+            <select>
+              <option>Corset couro tomara que caia</option>
+              <option>Jaqueta fitness preta zíper</option>
+              <option>Porta-coisa dourado decorado</option>
+              <option>+ Novo produto</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Data de publicação</label>
+            <input type="date" id="agend-date">
+          </div>
+          <div class="form-group">
+            <label>Horário</label>
+            <input type="time" value="10:00">
+          </div>
+          <div class="form-group full">
+            <label>Onde publicar</label>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px">
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" checked> Site AchaGi</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox"> Pinterest</label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox"> WhatsApp</label>
+            </div>
+          </div>
+          <div class="form-group full">
+            <label>Nota (opcional)</label>
+            <textarea placeholder="Ex: lançar junto com promoção da Shein" style="min-height:60px"></textarea>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" onclick="closeAgendModal()">Cancelar</button>
+          <button class="btn btn-primary" onclick="saveAgend()">Agendar ✓</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<!-- MODAL ADICIONAR PRODUTO -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Adicionar produto</div>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>Nome do produto</label>
+        <input type="text" id="modal-nome" placeholder="Ex: Corset couro tomara que caia">
+      </div>
+      <div class="form-group full">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <label style="margin-bottom:0">Descrição (estilo afiliada)</label>
+          <button type="button" id="btn-gerar" onclick="gerarDescricao()" style="display:none;background:var(--pink);color:#fff;border:none;border-radius:20px;padding:5px 14px;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif">
+            ✨ Gerar com IA
+          </button>
+        </div>
+        <div id="desc-loading" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:13px;color:var(--gray-light);text-align:center;margin-bottom:8px">
+          ✨ Gerando descrição no estilo afiliada...
+        </div>
+        <textarea id="modal-desc" placeholder="Cole o link e adicione a foto para gerar automaticamente..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Seção</label>
+        <select id="modal-secao">
+          <option>Moda</option>
+          <option>Casa & Deco</option>
+          <option>Beleza</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Subsecção</label>
+        <select id="modal-subsecao">
+          <option>Casual</option>
+          <option>Festa</option>
+          <option>Academia</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>Foto do produto</label>
+        <div onclick="document.getElementById('prod-photo-input').click()" id="prod-photo-drop" style="border:2px dashed var(--border);border-radius:10px;padding:1.25rem;text-align:center;cursor:pointer;background:var(--bg)">
+          <div style="font-size:24px;margin-bottom:4px">📷</div>
+          <div style="font-size:12px;color:var(--gray-light)">Clique para adicionar foto do produto</div>
+          <input type="file" id="prod-photo-input" accept="image/*" style="display:none" onchange="previewProdPhoto(event)">
+        </div>
+        <div id="prod-photo-preview" style="display:none;margin-top:10px;position:relative">
+          <img id="prod-preview-img" style="width:100%;max-height:160px;object-fit:cover;border-radius:8px;border:1px solid var(--border)">
+          <button onclick="removeProdPhoto()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:12px">✕</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Loja</label>
+        <select id="modal-loja">
+          <option>Shein</option>
+          <option>Shopee</option>
+          <option>Mercado Livre</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Link de afiliada</label>
+        <input type="text" id="modal-link" placeholder="https://..." oninput="checkGerarBtn()">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary">Salvar produto</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Navigation
+function goTo(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+
+// Edit produto
+function editProduto(nome, secao, sub, loja) {
+  document.getElementById('modal-title').textContent = 'Editar produto';
+  document.getElementById('modal-nome').value = nome;
+  document.getElementById('modal-secao').value = secao === 'Moda' ? 'Moda' : secao === 'Casa' ? 'Casa & Deco' : 'Beleza';
+  const subSelect = document.getElementById('modal-subsecao');
+  for(let i=0; i<subSelect.options.length; i++) {
+    if(subSelect.options[i].value === sub || subSelect.options[i].text === sub) { subSelect.selectedIndex = i; break; }
+  }
+  const lojaSelect = document.getElementById('modal-loja');
+  for(let i=0; i<lojaSelect.options.length; i++) {
+    if(lojaSelect.options[i].text === loja) { lojaSelect.selectedIndex = i; break; }
+  }
+  openModal();
+}
+
+function removeProduto(btn) {
+  if(confirm('Remover este produto?')) {
+    btn.closest('tr').style.opacity = '0.4';
+    btn.closest('tr').style.pointerEvents = 'none';
+    setTimeout(()=>btn.closest('tr').remove(), 300);
+  }
+}
+
+// Modal
+function openModal() {
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+function previewProdPhoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    document.getElementById('prod-preview-img').src = ev.target.result;
+    document.getElementById('prod-photo-preview').style.display = 'block';
+    document.getElementById('prod-photo-drop').style.display = 'none';
+    checkGerarBtn();
+  };
+  reader.readAsDataURL(file);
+}
+function removeProdPhoto() {
+  document.getElementById('prod-photo-preview').style.display = 'none';
+  document.getElementById('prod-photo-drop').style.display = 'block';
+  document.getElementById('prod-photo-input').value = '';
+}
+
+
+// Mostrar botão gerar quando tiver foto OU link
+function checkGerarBtn() {
+  const hasPhoto = document.getElementById('prod-photo-preview').style.display === 'block';
+  const hasLink = document.getElementById('modal-link').value.trim().length > 5;
+  document.getElementById('btn-gerar').style.display = (hasPhoto || hasLink) ? 'inline-block' : 'none';
+}
+
+async function gerarDescricao() {
+  const nome = document.getElementById('modal-nome').value.trim();
+  const loja = document.getElementById('modal-loja').value;
+  const secao = document.getElementById('modal-secao').value;
+  const imgEl = document.getElementById('prod-preview-img');
+  const hasPhoto = document.getElementById('prod-photo-preview').style.display === 'block';
+
+  const btn = document.getElementById('btn-gerar');
+  const loading = document.getElementById('desc-loading');
+  const textarea = document.getElementById('modal-desc');
+
+  btn.style.display = 'none';
+  loading.style.display = 'block';
+  textarea.style.display = 'none';
+
+  try {
+    const messages = [];
+    const userContent = [];
+
+    if (hasPhoto) {
+      const base64 = imgEl.src.split(',')[1];
+      const mediaType = imgEl.src.split(';')[0].split(':')[1] || 'image/jpeg';
+      userContent.push({ type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } });
+    }
+
+    userContent.push({
+      type: 'text',
+      text: `Você é uma afiliada de moda e lifestyle famosa no Pinterest e TikTok. Gere uma descrição curta e irresistível para este produto.
+
+Produto: ${nome || 'produto da foto'}
+Loja: ${loja}
+Seção: ${secao}
+
+Regras:
+- Máximo 3 frases curtas
+- Tom pessoal, como se você estivesse recomendando pra uma amiga
+- Crie desejo antes de vender
+- Mencione que parece mais caro do que é (se for moda)
+- Termine com uma frase de ação suave tipo "link aqui em cima 👆" ou "corre que esgota rápido"
+- Use 1 emoji no máximo
+- NÃO use hashtags aqui
+
+Retorne APENAS a descrição, sem aspas ou explicações.`
+    });
+
+    messages.push({ role: 'user', content: userContent });
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages
+      })
+    });
+
+    const data = await response.json();
+    const texto = data.content?.map(i => i.text || '').join('').trim();
+    textarea.value = texto || 'Não foi possível gerar. Tente novamente.';
+  } catch(err) {
+    textarea.value = 'Erro ao gerar. Verifique sua conexão e tente novamente.';
+  } finally {
+    loading.style.display = 'none';
+    textarea.style.display = 'block';
+    btn.style.display = 'inline-block';
+    btn.textContent = '↺ Gerar novamente';
+  }
+}
+
+// Comments
+function toggleAddComment() {
+  const form = document.getElementById('add-comment-form');
+  form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+function previewPhoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    document.getElementById('preview-img').src = ev.target.result;
+    document.getElementById('photo-preview').style.display = 'block';
+    document.getElementById('photo-drop').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+function removePhoto() {
+  document.getElementById('photo-preview').style.display = 'none';
+  document.getElementById('photo-drop').style.display = 'block';
+  document.getElementById('photo-input').value = '';
+}
+function addComment() {
+  const name = document.getElementById('new-name').value.trim();
+  const text = document.getElementById('new-text').value.trim();
+  const product = document.getElementById('new-product').value;
+  const stars = document.getElementById('new-stars').value;
+  const status = document.getElementById('new-status').value;
+  const imgEl = document.getElementById('preview-img');
+  const hasPhoto = document.getElementById('photo-preview').style.display === 'block';
+  if (!name || !text) { alert('Preencha nome e comentário!'); return; }
+  const palettes = [['var(--pink-light)','var(--pink)'],['var(--green-light)','var(--green)'],['var(--amber-light)','var(--amber)']];
+  const p = palettes[Math.floor(Math.random()*palettes.length)];
+  const starsHtml = '⭐'.repeat(parseInt(stars));
+  const statusBadge = status === 'approved' ? '<span class="badge badge-approved">Aprovado</span>' : '<span class="badge badge-pending">Pendente</span>';
+  const productHtml = product ? `<div style="font-size:11px;color:var(--gray-light);margin-top:2px">📦 ${product}</div>` : '';
+  const photoHtml = hasPhoto ? `<img src="${imgEl.src}" style="width:100%;max-height:180px;object-fit:cover;border-radius:8px;margin-top:10px;border:1px solid var(--border)">` : '';
+  const actionsHtml = status === 'pending' ? `<div class="comment-actions"><button class="btn btn-secondary btn-sm" onclick="approveComment(this)">✓ Aprovar</button><button class="btn btn-danger btn-sm" onclick="removeComment(this)">✕ Rejeitar</button></div>` : '';
+  const card = document.createElement('div');
+  card.className = 'comment-card';
+  card.dataset.status = status;
+  card.innerHTML = `<div class="comment-avatar" style="background:${p[0]};color:${p[1]}">${name[0].toUpperCase()}</div><div class="comment-body"><div class="comment-meta"><span class="comment-name">${name}</span>${statusBadge}<span class="comment-date">agora</span></div>${productHtml}<div class="comment-text">${text}</div>${photoHtml}<div style="font-size:13px;color:var(--amber);margin-top:4px">${starsHtml}</div>${actionsHtml}</div>`;
+  document.getElementById('comments-list').prepend(card);
+  updatePendingCount();
+  document.getElementById('new-name').value = '';
+  document.getElementById('new-text').value = '';
+  document.getElementById('new-product').value = '';
+  removePhoto();
+  toggleAddComment();
+}
+function approveComment(btn) {
+  const card = btn.closest('.comment-card');
+  card.dataset.status = 'approved';
+  const badge = card.querySelector('.badge');
+  badge.className = 'badge badge-approved';
+  badge.textContent = 'Aprovado';
+  btn.closest('.comment-actions').remove();
+  updatePendingCount();
+}
+function removeComment(btn) {
+  btn.closest('.comment-card').remove();
+  updatePendingCount();
+}
+function updatePendingCount() {
+  const pending = document.querySelectorAll('.comment-card[data-status="pending"]').length;
+  const el = document.getElementById('pending-count');
+  if (el) el.textContent = pending > 0 ? `${pending} pendente${pending > 1 ? 's' : ''}` : 'tudo em dia ✓';
+}
+
+// Charts
+const clicksCtx = document.getElementById('clicksChart').getContext('2d');
+new Chart(clicksCtx, {
+  type: 'line',
+  data: {
+    labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
+    datasets: [{
+      label: 'Cliques',
+      data: [28, 45, 32, 67, 54, 89, 47],
+      borderColor: '#D4537E',
+      backgroundColor: 'rgba(212,83,126,0.08)',
+      tension: 0.4,
+      fill: true,
+      pointBackgroundColor: '#D4537E',
+      pointRadius: 4,
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: true, grid: { color: '#f0f0f0' }, ticks: { font: { size: 11 } } },
+      x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+    }
+  }
+});
+
+const sectionCtx = document.getElementById('sectionChart').getContext('2d');
+new Chart(sectionCtx, {
+  type: 'doughnut',
+  data: {
+    labels: ['Moda', 'Casa & Deco', 'Beleza'],
+    datasets: [{
+      data: [510, 87, 0],
+      backgroundColor: ['#D4537E', '#639922', '#BA7517'],
+      borderWidth: 0,
+    }]
+  },
+  options: {
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 12 }, padding: 16 } }
+    },
+    cutout: '65%',
+  }
+});
+
+// RELATÓRIO
+let relChart = null;
+const relData = [
+  { periodo:'18–24 mai 2025', dias:['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'], clicks:[38,52,41,78,65,55,33], top:'Corset couro', topN:312, comissao:'R$ 31', novos:2, insight:'O Corset couro teve 24% mais cliques que na semana passada — considere adicionar mais produtos de <strong>Festa</strong> para aproveitar o momentum! Quinta e sexta foram os dias com mais acessos.' },
+  { periodo:'11–17 mai 2025', dias:['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'], clicks:[28,40,33,55,50,42,29], top:'Jaqueta fitness', topN:198, comissao:'R$ 22', novos:1, insight:'Semana estável. A Jaqueta fitness liderou com 198 cliques. Considere criar mais conteúdo para <strong>Academia</strong> — a demanda está crescendo.' },
+  { periodo:'04–10 mai 2025', dias:['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'], clicks:[20,30,28,45,40,35,20], top:'Porta-coisa', topN:120, comissao:'R$ 18', novos:1, insight:'Boa semana para Casa & Deco! O Porta-coisa foi destaque. Tente adicionar mais produtos de decoração para capitalizar o interesse.' }
+];
+
+function renderRelatorio() {
+  const idx = parseInt(document.getElementById('relatorio-semana').value);
+  const d = relData[idx];
+  document.getElementById('rel-periodo').textContent = d.periodo;
+  document.getElementById('rel-top').textContent = d.top;
+  document.getElementById('rel-top-n').textContent = d.topN + ' cliques';
+  document.getElementById('rel-comissao').textContent = d.comissao;
+  document.getElementById('rel-insight').innerHTML = d.insight;
+  if(relChart) relChart.destroy();
+  const ctx = document.getElementById('relatorioChart').getContext('2d');
+  relChart = new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels: d.dias,
+      datasets:[{ data: d.clicks, backgroundColor:'rgba(212,83,126,0.18)', borderColor:'#D4537E', borderWidth:2, borderRadius:6 }]
+    },
+    options:{ plugins:{legend:{display:false}}, scales:{ y:{beginAtZero:true,grid:{color:'#f0f0f0'},ticks:{font:{size:11}}}, x:{grid:{display:false},ticks:{font:{size:11}}} } }
+  });
+}
+
+function exportRelatorio() {
+  const idx = parseInt(document.getElementById('relatorio-semana').value);
+  const d = relData[idx];
+  const text = `Relatório AchaGi — ${d.periodo}\nCliques: ${d.clicks.reduce((a,b)=>a+b,0)}\nTop produto: ${d.top} (${d.topN} cliques)\nEstimativa comissão: ${d.comissao}`;
+  navigator.clipboard.writeText(text).then(()=>alert('Relatório copiado! Cole onde quiser.'));
+}
+
+// AGENDAMENTO CALENDÁRIO
+function renderCalendar() {
+  const cal = document.getElementById('mini-cal');
+  if(!cal) return;
+  const days = ['D','S','T','Q','Q','S','S'];
+  const scheduled = [22, 24];
+  const published = [18, 15, 10];
+  let html = days.map(d=>`<div style="text-align:center;font-size:10px;color:var(--gray-light);padding:4px 0">${d}</div>`).join('');
+  // May 2025 starts on Thursday (offset 4)
+  for(let i=0;i<4;i++) html+=`<div></div>`;
+  for(let d=1;d<=31;d++){
+    const isToday = d===21;
+    const hasSched = scheduled.includes(d);
+    const hasPub = published.includes(d);
+    const dot = hasSched ? 'var(--pink)' : hasPub ? 'var(--green)' : 'transparent';
+    html+=`<div style="text-align:center;padding:5px 2px;border-radius:6px;cursor:pointer;font-size:12px;${isToday?'background:var(--pink-light);font-weight:600;color:var(--pink)':''}" onclick="filterDay(${d})">
+      ${d}
+      <div style="width:5px;height:5px;border-radius:50%;background:${dot};margin:2px auto 0"></div>
+    </div>`;
+  }
+  cal.innerHTML = html;
+}
+
+function filterDay(d) {
+  alert('Dia ' + d + ' de maio — em breve: ver posts agendados para este dia!');
+}
+
+function openAgendModal() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('agend-date').value = today;
+  document.getElementById('agendModal').classList.add('open');
+}
+function closeAgendModal() { document.getElementById('agendModal').classList.remove('open'); }
+function saveAgend() {
+  closeAgendModal();
+  alert('Post agendado com sucesso! ✓');
+}
+
+// init
+renderCalendar();
+
+</script>
+</body>
+</html>

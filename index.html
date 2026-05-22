@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AchaGi — achados que valem cada clique</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink: #D4537E; --pink-light: #FBEAF0; --pink-dark: #993556;
+    --green: #639922; --green-light: #EAF3DE;
+    --amber: #BA7517; --amber-light: #FAEEDA;
+    --black: #1a1a1a; --gray: #666; --gray-light: #999;
+    --border: #e8e8e8; --bg: #fafaf8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--black); }
+
+  /* BANNER */
+  .banner {
+    background: var(--pink); color: #fff;
+    text-align: center; font-size: 12px; letter-spacing: 1.5px;
+    overflow: hidden; position: relative; height: 36px;
+  }
+  .banner-track {
+    display: flex; position: absolute; white-space: nowrap;
+    animation: marquee 18s linear infinite;
+    align-items: center; height: 100%;
+  }
+  .banner-track span { padding: 0 2.5rem; }
+  .banner-track .dot { opacity: 0.5; padding: 0; }
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* HEADER */
+  header { text-align: center; padding: 2.5rem 1rem 1.75rem; border-bottom: 1px solid var(--border); background: #fff; }
+  .logo { font-family: 'Playfair Display', serif; font-size: 42px; letter-spacing: 4px; }
+  .logo span { color: var(--pink); font-style: italic; }
+  .tagline { font-size: 12px; color: var(--gray); letter-spacing: 3px; text-transform: uppercase; margin-top: 6px; }
+
+  /* SEARCH BAR */
+  .search-wrap {
+    max-width: 480px; margin: 1.25rem auto 0; padding: 0 1.25rem;
+    position: relative;
+  }
+  .search-wrap input {
+    width: 100%; padding: 10px 16px 10px 38px;
+    border: 1px solid var(--border); border-radius: 24px;
+    font-size: 13px; font-family: 'DM Sans', sans-serif;
+    background: var(--bg); color: var(--black);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .search-wrap input:focus { outline: none; border-color: var(--pink); box-shadow: 0 0 0 3px rgba(212,83,126,0.08); }
+  .search-icon { position: absolute; left: 26px; top: 50%; transform: translateY(-50%); font-size: 14px; pointer-events: none; }
+  .search-results-count { font-size: 12px; color: var(--gray-light); text-align: center; margin-top: 6px; display: none; }
+
+  /* FILTER BAR */
+  .filter-bar {
+    display: flex; align-items: center; gap: 8px;
+    max-width: 680px; margin: 1rem auto 0; padding: 0 1.25rem;
+    overflow-x: auto;
+  }
+  .filter-label { font-size: 11px; color: var(--gray-light); letter-spacing: 1px; white-space: nowrap; text-transform: uppercase; }
+  .filter-btn {
+    font-size: 12px; padding: 5px 14px; border-radius: 20px;
+    border: 1px solid var(--border); background: #fff; color: var(--gray);
+    cursor: pointer; white-space: nowrap; font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+  }
+  .filter-btn:hover { border-color: var(--pink); color: var(--pink); }
+  .filter-btn.active { background: var(--pink-light); color: var(--pink); border-color: var(--pink); font-weight: 500; }
+
+  /* MAIN NAV */
+  .main-nav {
+    display: flex; justify-content: center; background: #fff;
+    border-bottom: 1px solid var(--border); overflow-x: auto; gap: 0; margin-top: 1.25rem;
+  }
+  .main-nav a {
+    text-decoration: none; font-size: 12px; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--gray);
+    padding: 14px 28px; border-bottom: 2px solid transparent;
+    white-space: nowrap; transition: color 0.2s, border-color 0.2s;
+  }
+  .main-nav a.active-moda, .main-nav a.moda:hover { color: var(--pink); border-bottom-color: var(--pink); }
+  .main-nav a.active-casa, .main-nav a.casa:hover { color: var(--green); border-bottom-color: var(--green); }
+  .main-nav a.active-beleza, .main-nav a.beleza:hover { color: var(--amber); border-bottom-color: var(--amber); }
+
+  /* SUB NAV */
+  .sub-nav { display: flex; gap: 8px; padding: 1.25rem 1.25rem 0; max-width: 680px; margin: 0 auto; overflow-x: auto; }
+  .sub-tab {
+    font-size: 12px; padding: 6px 16px; border-radius: 20px;
+    border: 1px solid var(--border); background: #fff; color: var(--gray);
+    cursor: pointer; white-space: nowrap; transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+  }
+  .sub-tab.active-pink { background: var(--pink-light); color: var(--pink); border-color: var(--pink); }
+  .sub-tab.active-green { background: var(--green-light); color: var(--green); border-color: var(--green); }
+  .sub-tab.active-amber { background: var(--amber-light); color: var(--amber); border-color: var(--amber); }
+
+  .section { max-width: 680px; margin: 0 auto; padding: 1.75rem 1.25rem 2.5rem; }
+  .section-heading { display: flex; align-items: baseline; gap: 12px; margin-bottom: 1.5rem; }
+  .section-heading h2 { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 400; }
+  .section-heading h2.moda { color: var(--pink); }
+  .section-heading h2.casa { color: var(--green); }
+  .section-heading h2.beleza { color: var(--amber); }
+  .section-heading span { font-size: 12px; color: var(--gray-light); letter-spacing: 1px; }
+  .subsection { display: none; }
+  .subsection.visible { display: block; }
+
+  /* PRODUCT CARD */
+  .product-card {
+    display: flex; gap: 16px; padding: 1.25rem;
+    background: #fff; border: 1px solid var(--border); border-radius: 12px;
+    margin-bottom: 12px; align-items: center; text-decoration: none; color: inherit;
+    transition: box-shadow 0.2s, transform 0.2s; position: relative;
+  }
+  .product-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); transform: translateY(-1px); }
+  .product-card.hidden { display: none; }
+  .save-btn {
+    position: absolute; top: 10px; right: 10px;
+    background: #fff; border: 1px solid var(--border); border-radius: 50%;
+    width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 14px; transition: all 0.2s; z-index: 2;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  .save-btn:hover { border-color: var(--pink); transform: scale(1.1); }
+  .save-btn.saved { background: var(--pink-light); border-color: var(--pink); }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 300; align-items: flex-end; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal-sheet { background: #fff; border-radius: 20px 20px 0 0; padding: 1.5rem; width: 100%; max-width: 500px; animation: slideUp 0.25s ease; max-height: 80vh; overflow-y: auto; }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 1.25rem; }
+  .modal-title { font-family: 'Playfair Display', serif; font-size: 20px; margin-bottom: 1.25rem; }
+  .album-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem; }
+  .album-item { border: 1.5px solid var(--border); border-radius: 12px; padding: 12px; cursor: pointer; transition: all 0.15s; text-align: center; }
+  .album-item:hover, .album-item.selected { border-color: var(--pink); background: var(--pink-light); }
+  .album-item .album-icon { font-size: 24px; margin-bottom: 6px; }
+  .album-item .album-name { font-size: 13px; font-weight: 500; }
+  .album-item .album-count { font-size: 11px; color: var(--gray-light); margin-top: 2px; }
+  .new-album-row { display: flex; gap: 8px; margin-bottom: 1rem; }
+  .new-album-row input { flex: 1; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-family: 'DM Sans', sans-serif; }
+  .new-album-row input:focus { outline: none; border-color: var(--pink); }
+  .btn-salvar { width: 100%; padding: 12px; background: var(--pink); color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.2s; }
+  .btn-salvar:hover { background: #993556; }
+  .albums-page { display: none; max-width: 680px; margin: 0 auto; padding: 2rem 1.25rem; }
+  .albums-page.visible { display: block; }
+  .albums-page-heading { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; }
+  .albums-page-heading h2 { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 400; }
+  .album-cards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .album-card { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; cursor: pointer; transition: all 0.2s; }
+  .album-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); transform: translateY(-1px); }
+  .album-card-icon { font-size: 28px; margin-bottom: 8px; }
+  .album-card-name { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .album-card-meta { font-size: 12px; color: var(--gray-light); }
+  .share-btn { font-size: 12px; padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: #fff; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+  .share-btn:hover { border-color: var(--pink); color: var(--pink); }
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--black); color: #fff; padding: 10px 20px; border-radius: 24px; font-size: 13px; z-index: 400; opacity: 0; transition: opacity 0.2s; pointer-events: none; white-space: nowrap; }
+  .toast.show { opacity: 1; }
+
+  .product-img {
+    overflow: hidden; width: 72px; height: 72px; border-radius: 8px;
+    background: var(--bg); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 28px;
+  }
+  .product-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .product-info { flex: 1; min-width: 0; }
+  .product-name { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .product-desc { font-size: 12px; color: var(--gray); line-height: 1.5; margin-bottom: 8px; }
+  .product-tags { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .product-tag { display: inline-block; font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 500; }
+  .tag-shein { background: #FBEAF0; color: #993556; }
+  .tag-shopee { background: #FAECE7; color: #993C1D; }
+  .tag-novo { background: #dcfce7; color: #166534; }
+  .tag-preco { background: var(--bg); color: var(--gray); border: 1px solid var(--border); }
+
+  .btn-ver {
+    display: inline-block; padding: 8px 20px; border-radius: 24px;
+    font-size: 12px; font-weight: 500; text-decoration: none;
+    white-space: nowrap; flex-shrink: 0; border: 1.5px solid;
+    transition: background 0.2s, color 0.2s;
+  }
+  .btn-moda { border-color: var(--pink); color: var(--pink); }
+  .btn-moda:hover { background: var(--pink); color: #fff; }
+  .btn-casa { border-color: var(--green); color: var(--green); }
+  .btn-casa:hover { background: var(--green); color: #fff; }
+  .btn-beleza { border-color: var(--amber); color: var(--amber); }
+  .btn-beleza:hover { background: var(--amber); color: #fff; }
+
+  .empty {
+    text-align: center; padding: 2rem; color: var(--gray-light);
+    font-size: 13px; border: 1.5px dashed var(--border);
+    border-radius: 12px; font-style: italic;
+  }
+
+  /* MAIS AMADOS */
+  .favorites-section { max-width: 680px; margin: 0 auto; padding: 2rem 1.25rem 0; }
+  .favorites-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 1.25rem; }
+  .favorites-heading h2 { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 400; }
+  .favorites-heading span { font-size: 12px; color: var(--gray-light); letter-spacing: 1px; }
+  .favorites-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 2rem; }
+  .fav-card {
+    background: #fff; border: 1px solid var(--border); border-radius: 12px;
+    overflow: hidden; text-decoration: none; color: inherit;
+    transition: box-shadow 0.2s, transform 0.2s; position: relative;
+  }
+  .fav-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); transform: translateY(-2px); }
+  .fav-card-img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; background: var(--bg); }
+  .fav-card-img-placeholder { width: 100%; aspect-ratio: 3/4; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 36px; }
+  .fav-card-body { padding: 10px 10px 12px; }
+  .fav-card-name { font-size: 12px; font-weight: 500; margin-bottom: 4px; line-height: 1.3; }
+  .fav-card-tag { font-size: 10px; color: var(--gray-light); }
+  .fav-badge { position: absolute; top: 8px; left: 8px; background: var(--pink); color: #fff; font-size: 10px; font-weight: 500; padding: 3px 8px; border-radius: 20px; }
+  .fav-divider { border: none; border-top: 1px solid var(--border); margin: 0 1.25rem; }
+
+  /* SEARCH EMPTY */
+  .search-empty { display: none; text-align: center; padding: 3rem 1.25rem; color: var(--gray-light); }
+  .search-empty .icon { font-size: 36px; margin-bottom: 8px; }
+
+  footer { text-align: center; padding: 2rem 1rem; border-top: 1px solid var(--border); font-size: 12px; color: var(--gray); letter-spacing: 1px; }
+  footer span { color: var(--pink); font-family: 'Playfair Display', serif; font-style: italic; }
+
+  @media (max-width: 480px) { .favorites-grid { grid-template-columns: repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+
+<!-- BANNER ROTATIVO -->
+<div class="banner">
+  <div class="banner-track" id="bannerTrack">
+    <span>✨ novos achados toda semana</span>
+    <span class="dot">·</span>
+    <span>🛍️ frete grátis Shein acima de R$99</span>
+    <span class="dot">·</span>
+    <span>💸 até 20% de comissão Shein</span>
+    <span class="dot">·</span>
+    <span>🖤 curadoria feita com amor pela Gi</span>
+    <span class="dot">·</span>
+    <!-- duplicado pra loop infinito -->
+    <span>✨ novos achados toda semana</span>
+    <span class="dot">·</span>
+    <span>🛍️ frete grátis Shein acima de R$99</span>
+    <span class="dot">·</span>
+    <span>💸 até 20% de comissão Shein</span>
+    <span class="dot">·</span>
+    <span>🖤 curadoria feita com amor pela Gi</span>
+    <span class="dot">·</span>
+  </div>
+</div>
+
+<header>
+  <div class="logo">Acha<span>Gi</span></div>
+  <div class="tagline">achados que valem cada clique</div>
+  <!-- BUSCA -->
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="buscar produtos..." oninput="handleSearch(this.value)">
+  </div>
+  <div class="search-results-count" id="searchCount"></div>
+  <!-- FILTRO PREÇO -->
+  <div class="filter-bar">
+    <span class="filter-label">preço:</span>
+    <button class="filter-btn active" onclick="setFilter('all', this)">todos</button>
+    <button class="filter-btn" onclick="setFilter('50', this)">até R$50</button>
+    <button class="filter-btn" onclick="setFilter('100', this)">até R$100</button>
+    <button class="filter-btn" onclick="setFilter('200', this)">até R$200</button>
+  </div>
+</header>
+
+<nav class="main-nav" id="mainNav">
+  <a href="#" class="moda active-moda" onclick="showSection('moda', event)">Moda</a>
+  <a href="#" class="casa" onclick="showSection('casa', event)">Casa & deco</a>
+  <a href="#" class="beleza" onclick="showSection('beleza', event)">Beleza</a>
+  <a href="#" class="albuns" onclick="showAlbums(event)" style="color:var(--pink)">📁 Meus álbuns</a>
+</nav>
+
+<!-- MAIS AMADOS -->
+<div class="favorites-section" id="favSection">
+  <div class="favorites-heading">
+    <h2>❤️ Mais amados</h2>
+    <span>os favoritos da semana</span>
+  </div>
+  <div class="favorites-grid">
+    <a class="fav-card" href="SEU_LINK_AQUI" target="_blank">
+      <div class="fav-badge">❤️ top 1</div>
+      <div class="fav-card-img-placeholder">🖤</div>
+      <div class="fav-card-body">
+        <div class="fav-card-name">Corset couro tomara que caia</div>
+        <div class="fav-card-tag">Shein · Festa</div>
+      </div>
+    </a>
+    <a class="fav-card" href="SEU_LINK_AQUI" target="_blank">
+      <div class="fav-badge">❤️ top 2</div>
+      <div class="fav-card-img-placeholder">🤍</div>
+      <div class="fav-card-body">
+        <div class="fav-card-name">Jaqueta fitness preta zíper</div>
+        <div class="fav-card-tag">Shein · Academia</div>
+      </div>
+    </a>
+    <a class="fav-card" href="SEU_LINK_AQUI" target="_blank">
+      <div class="fav-badge">❤️ top 3</div>
+      <div class="fav-card-img-placeholder">✨</div>
+      <div class="fav-card-body">
+        <div class="fav-card-name">Porta-coisa dourado decorado</div>
+        <div class="fav-card-tag">Shopee · Organização</div>
+      </div>
+    </a>
+  </div>
+</div>
+<hr class="fav-divider" id="favDivider">
+
+<!-- MODA -->
+<div id="sec-moda">
+  <div class="sub-nav">
+    <button class="sub-tab active-pink" onclick="showSub('moda','casual')">Casual</button>
+    <button class="sub-tab" onclick="showSub('moda','festa')">Festa</button>
+    <button class="sub-tab" onclick="showSub('moda','academia')">Academia</button>
+  </div>
+  <div class="section">
+    <div class="section-heading"><h2 class="moda">Moda</h2><span id="moda-label">casual</span></div>
+    <div class="subsection visible" id="moda-casual">
+      <div class="empty">em breve novos achados por aqui ✨</div>
+    </div>
+    <div class="subsection" id="moda-festa">
+      <a class="product-card" href="SEU_LINK_AQUI" target="_blank" data-price="150" data-name="Corset couro tomara que caia" data-emoji="🖤" data-added="2025-05-18">
+        <button class="save-btn" onclick="openSaveModal(event, this)" title="Salvar em álbum">♡</button>
+        <div class="product-img"><div style="font-size:28px;display:flex;align-items:center;justify-content:center;width:100%;height:100%">🖤</div></div>
+        <div class="product-info">
+          <div class="product-name">Corset couro tomara que caia</div>
+          <div class="product-desc">Esse corset tá em outro nível. Estruturado, com acabamento que parece peça de grife. Pra arrasar na balada ou no jantar.</div>
+          <div class="product-tags">
+            <span class="product-tag tag-shein">Shein</span>
+            <span class="product-tag tag-preco">R$150</span>
+            <span class="product-tag tag-novo">✦ novo</span>
+          </div>
+        </div>
+        <span class="btn-ver btn-moda">Ver</span>
+      </a>
+    </div>
+    <div class="subsection" id="moda-academia">
+      <a class="product-card" href="SEU_LINK_AQUI" target="_blank" data-price="89" data-name="Jaqueta fitness preta com zíper" data-emoji="🤍" data-added="2025-05-15">
+        <button class="save-btn" onclick="openSaveModal(event, this)" title="Salvar em álbum">♡</button>
+        <div class="product-img"><div style="font-size:28px;display:flex;align-items:center;justify-content:center;width:100%;height:100%">🤍</div></div>
+        <div class="product-info">
+          <div class="product-name">Jaqueta fitness preta com zíper</div>
+          <div class="product-desc">Essa jaqueta tá me obcecando. Zíper, modelagem que define, e parece muito mais cara do que é.</div>
+          <div class="product-tags">
+            <span class="product-tag tag-shein">Shein</span>
+            <span class="product-tag tag-preco">R$89</span>
+            <span class="product-tag tag-novo">✦ novo</span>
+          </div>
+        </div>
+        <span class="btn-ver btn-moda">Ver</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- CASA -->
+<div id="sec-casa" style="display:none">
+  <div class="sub-nav">
+    <button class="sub-tab active-green" onclick="showSub('casa','organizacao')">Organização</button>
+    <button class="sub-tab" onclick="showSub('casa','decoracao')">Decoração</button>
+    <button class="sub-tab" onclick="showSub('casa','cozinha')">Cozinha</button>
+  </div>
+  <div class="section">
+    <div class="section-heading"><h2 class="casa">Casa & deco</h2><span id="casa-label">organização</span></div>
+    <div class="subsection visible" id="casa-organizacao">
+      <a class="product-card" href="SEU_LINK_AQUI" target="_blank" data-price="45" data-name="Porta-coisa dourado decorado" data-emoji="✨" data-added="2025-05-10">
+        <button class="save-btn" onclick="openSaveModal(event, this)" title="Salvar em álbum">♡</button>
+        <div class="product-img"><div style="font-size:28px;display:flex;align-items:center;justify-content:center;width:100%;height:100%">✨</div></div>
+        <div class="product-info">
+          <div class="product-name">Porta-coisa dourado decorado</div>
+          <div class="product-desc">Aquele achado que transforma qualquer cantinho. Sofisticado, com acabamento dourado que dá um toque de luxo sem pesar no bolso.</div>
+          <div class="product-tags">
+            <span class="product-tag tag-shopee">Shopee</span>
+            <span class="product-tag tag-preco">R$45</span>
+          </div>
+        </div>
+        <span class="btn-ver btn-casa">Ver</span>
+      </a>
+    </div>
+    <div class="subsection" id="casa-decoracao">
+      <div class="empty">em breve novos achados por aqui ✨</div>
+    </div>
+    <div class="subsection" id="casa-cozinha">
+      <div class="empty">em breve novos achados por aqui ✨</div>
+    </div>
+  </div>
+</div>
+
+<!-- BELEZA -->
+<div id="sec-beleza" style="display:none">
+  <div class="sub-nav">
+    <button class="sub-tab active-amber" onclick="showSub('beleza','make')">Make</button>
+    <button class="sub-tab" onclick="showSub('beleza','skincare')">Skincare</button>
+    <button class="sub-tab" onclick="showSub('beleza','cabelo')">Cabelo</button>
+  </div>
+  <div class="section">
+    <div class="section-heading"><h2 class="beleza">Beleza</h2><span id="beleza-label">make</span></div>
+    <div class="subsection visible" id="beleza-make">
+      <div class="empty">em breve novos achados por aqui ✨</div>
+    </div>
+    <div class="subsection" id="beleza-skincare">
+      <div class="empty">em breve novos achados por aqui ✨</div>
+    </div>
+    <div class="subsection" id="beleza-cabelo">
+      <div class="empty">em breve novos achados por aqui ✨</div>
+    </div>
+  </div>
+</div>
+
+<!-- BUSCA: estado vazio -->
+<div class="search-empty" id="searchEmpty">
+  <div class="icon">🔍</div>
+  <p>Nenhum produto encontrado.<br>Tente outro termo.</p>
+</div>
+
+
+<!-- MODAL ÁLBUM -->
+<div class="modal-overlay" id="albumModal" onclick="closeAlbumModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Salvar em álbum</div>
+    <div class="new-album-row">
+      <input type="text" id="newAlbumInput" placeholder="✨ criar novo álbum...">
+      <button class="share-btn" onclick="createAlbum()">Criar</button>
+    </div>
+    <div class="album-grid" id="albumGrid"></div>
+    <button class="btn-salvar" onclick="saveToAlbum()">Salvar ❤️</button>
+  </div>
+</div>
+
+<!-- PÁGINA ÁLBUNS -->
+<div class="albums-page" id="albumsPage">
+  <div class="albums-page-heading">
+    <a href="#" class="share-btn back-btn" onclick="hideAlbums(event)">← voltar</a>
+    <h2>📁 Meus álbuns</h2>
+  </div>
+  <div id="albumsContent"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<footer>feito com amor por <span>AchaGi</span></footer>
+
+<script>
+const sections = ['moda','casa','beleza'];
+const subLabels = {
+  moda: { casual:'casual', festa:'festa', academia:'academia' },
+  casa: { organizacao:'organização', decoracao:'decoração', cozinha:'cozinha' },
+  beleza: { make:'make', skincare:'skincare', cabelo:'cabelo' }
+};
+const activeClass = { moda:'active-pink', casa:'active-green', beleza:'active-amber' };
+let currentFilter = 'all';
+let currentSearch = '';
+
+// TAG NOVO: marca produtos adicionados nos últimos 7 dias
+function checkNewTags() {
+  const now = new Date();
+  document.querySelectorAll('.product-card[data-added]').forEach(card => {
+    const added = new Date(card.dataset.added);
+    const days = (now - added) / (1000 * 60 * 60 * 24);
+    const novoTag = card.querySelector('.tag-novo');
+    if (novoTag) novoTag.style.display = days <= 7 ? '' : 'none';
+  });
+}
+
+// SEÇÃO
+function showSection(name, e) {
+  if (e) e.preventDefault();
+  sections.forEach(s => { document.getElementById('sec-'+s).style.display = s === name ? '' : 'none'; });
+  document.querySelectorAll('.main-nav a').forEach(a => {
+    a.className = a.className.replace(/active-\w+/,'').trim();
+    if (a.classList.contains(name)) a.classList.add('active-'+name);
+  });
+}
+
+// SUBSECÇÃO
+function showSub(section, sub) {
+  Object.keys(subLabels[section]).forEach(s => {
+    const el = document.getElementById(section+'-'+s);
+    if (el) el.classList.toggle('visible', s === sub);
+  });
+  const label = document.getElementById(section+'-label');
+  if (label) label.textContent = subLabels[section][sub];
+  const tabs = event.target.parentElement.querySelectorAll('.sub-tab');
+  tabs.forEach(t => { t.className = 'sub-tab'; if (t === event.target) t.classList.add(activeClass[section]); });
+  applyFilters();
+}
+
+// FILTRO PREÇO
+function setFilter(val, btn) {
+  currentFilter = val;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+
+// BUSCA
+function handleSearch(val) {
+  currentSearch = val.toLowerCase().trim();
+  applyFilters();
+  const countEl = document.getElementById('searchCount');
+  countEl.style.display = currentSearch ? 'block' : 'none';
+}
+
+// APLICAR FILTROS + BUSCA
+function applyFilters() {
+  const cards = document.querySelectorAll('.product-card');
+  let visible = 0;
+  cards.forEach(card => {
+    const price = parseInt(card.dataset.price || '99999');
+    const name = card.querySelector('.product-name').textContent.toLowerCase();
+    const desc = card.querySelector('.product-desc').textContent.toLowerCase();
+    const priceOk = currentFilter === 'all' || price <= parseInt(currentFilter);
+    const searchOk = !currentSearch || name.includes(currentSearch) || desc.includes(currentSearch);
+    const show = priceOk && searchOk;
+    card.classList.toggle('hidden', !show);
+    if (show) visible++;
+  });
+
+  // mostrar/ocultar favoritos e nav na busca
+  const searching = currentSearch.length > 0;
+  document.getElementById('favSection').style.display = searching ? 'none' : '';
+  document.getElementById('favDivider').style.display = searching ? 'none' : '';
+  document.getElementById('mainNav').style.display = searching ? 'none' : '';
+  document.querySelectorAll('[id^="sec-"]').forEach(s => s.style.display = searching ? '' : '');
+  if (searching) sections.forEach(s => document.getElementById('sec-'+s).style.display = '');
+
+  // mostrar todos os subsections na busca
+  if (searching) document.querySelectorAll('.subsection').forEach(s => s.classList.add('visible'));
+  else {
+    document.querySelectorAll('.subsection').forEach(s => s.classList.remove('visible'));
+    document.querySelectorAll('.subsection:first-of-type').forEach(s => s.classList.add('visible'));
+  }
+
+  const countEl = document.getElementById('searchCount');
+  if (currentSearch) countEl.textContent = `${visible} produto${visible !== 1 ? 's' : ''} encontrado${visible !== 1 ? 's' : ''}`;
+
+  const empty = document.getElementById('searchEmpty');
+  empty.style.display = (searching && visible === 0) ? 'block' : 'none';
+}
+
+
+// ÁLBUNS
+let albums = JSON.parse(sessionStorage.getItem('achagi_albums') || '{}');
+// default album
+if (!albums['favoritos']) albums['favoritos'] = { icon: '❤️', products: [] };
+let currentSaveBtn = null;
+let selectedAlbum = null;
+
+function saveAlbums() { sessionStorage.setItem('achagi_albums', JSON.stringify(albums)); }
+
+function openSaveModal(e, btn) {
+  e.preventDefault(); e.stopPropagation();
+  currentSaveBtn = btn;
+  selectedAlbum = null;
+  renderAlbumGrid();
+  document.getElementById('albumModal').classList.add('open');
+}
+function closeAlbumModal(e) {
+  if (e.target === document.getElementById('albumModal')) document.getElementById('albumModal').classList.remove('open');
+}
+
+const albumIcons = ['❤️','🌸','⭐','🛍️','🌙','✨','🎀','🔥','💎','🌿'];
+function createAlbum() {
+  const name = document.getElementById('newAlbumInput').value.trim();
+  if (!name) return;
+  const icon = albumIcons[Object.keys(albums).length % albumIcons.length];
+  albums[name] = { icon, products: [] };
+  saveAlbums();
+  document.getElementById('newAlbumInput').value = '';
+  selectedAlbum = name;
+  renderAlbumGrid();
+}
+
+function renderAlbumGrid() {
+  const grid = document.getElementById('albumGrid');
+  grid.innerHTML = Object.entries(albums).map(([name, data]) => `
+    <div class="album-item ${selectedAlbum === name ? 'selected' : ''}" onclick="selectAlbum('${name}', this)">
+      <div class="album-icon">${data.icon}</div>
+      <div class="album-name">${name}</div>
+      <div class="album-count">${data.products.length} item${data.products.length !== 1 ? 's' : ''}</div>
+    </div>`).join('');
+}
+
+function selectAlbum(name, el) {
+  selectedAlbum = name;
+  document.querySelectorAll('.album-item').forEach(i => i.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function saveToAlbum() {
+  if (!selectedAlbum || !currentSaveBtn) { showToast('Escolha um álbum!'); return; }
+  const card = currentSaveBtn.closest('.product-card');
+  const product = { name: card.dataset.name, emoji: card.dataset.emoji || '🛍️', price: card.dataset.price, link: card.href };
+  const already = albums[selectedAlbum].products.find(p => p.name === product.name);
+  if (!already) albums[selectedAlbum].products.push(product);
+  saveAlbums();
+  currentSaveBtn.textContent = '♥';
+  currentSaveBtn.classList.add('saved');
+  document.getElementById('albumModal').classList.remove('open');
+  showToast(`Salvo em "${selectedAlbum}" ❤️`);
+}
+
+function showAlbums(e) {
+  e.preventDefault();
+  document.getElementById('albumsPage').classList.add('visible');
+  ['sec-moda','sec-casa','sec-beleza','favSection','favDivider'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.style.display = 'none';
+  });
+  renderAlbumsPage();
+}
+function hideAlbums(e) {
+  e.preventDefault();
+  document.getElementById('albumsPage').classList.remove('visible');
+  document.getElementById('favSection').style.display = '';
+  document.getElementById('favDivider').style.display = '';
+  document.getElementById('sec-moda').style.display = '';
+}
+
+function renderAlbumsPage() {
+  const container = document.getElementById('albumsContent');
+  if (Object.keys(albums).length === 0) {
+    container.innerHTML = '<div class="empty">Nenhum álbum ainda. Salve produtos com o ♡!</div>';
+    return;
+  }
+  container.innerHTML = Object.entries(albums).map(([name, data]) => `
+    <div style="margin-bottom:2rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:22px">${data.icon}</span>
+          <div>
+            <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:400">${name}</div>
+            <div style="font-size:12px;color:var(--gray-light)">${data.products.length} item${data.products.length !== 1 ? 's' : ''}</div>
+          </div>
+        </div>
+        <button class="share-btn" onclick="shareAlbum('${name}')">🔗 compartilhar</button>
+      </div>
+      ${data.products.length === 0
+        ? '<div class="empty">álbum vazio</div>'
+        : data.products.map(p => `
+          <a href="${p.link}" target="_blank" class="product-card" style="margin-bottom:10px">
+            <div class="product-img"><div style="font-size:28px;display:flex;align-items:center;justify-content:center;width:100%;height:100%">${p.emoji}</div></div>
+            <div class="product-info">
+              <div class="product-name">${p.name}</div>
+              ${p.price ? `<div class="product-tags"><span class="product-tag tag-preco">R$${p.price}</span></div>` : ''}
+            </div>
+            <span class="btn-ver btn-moda">Ver</span>
+          </a>`).join('')
+      }
+    </div>`).join('');
+}
+
+function shareAlbum(name) {
+  const text = `Olha meu álbum "${name}" no AchaGi! 🛍️`;
+  if (navigator.share) {
+    navigator.share({ title: 'AchaGi — ' + name, text });
+  } else {
+    navigator.clipboard.writeText(text).then(() => showToast('Link copiado! 🔗'));
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+checkNewTags();
+</script>
+</body>
+</html>
