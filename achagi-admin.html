@@ -1128,8 +1128,8 @@ function initAdminTheme() {
 
 // Navigation
 function goTo(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
   document.getElementById('page-' + page).classList.add('active');
   event.currentTarget.classList.add('active');
 }
@@ -1148,7 +1148,7 @@ function salvarConfig() {
   if (pinterest) config.pinterest = pinterest.value.trim();
   if (tiktok) config.tiktok = tiktok.value.trim();
   if (instagram) config.instagram = instagram.value.trim();
-  if (banner) config.bannerMsgs = banner.value.split('\n').map(s=>s.trim()).filter(Boolean);
+  if (banner) config.bannerMsgs = banner.value.split('\n').map(function(s){return s.trim();}).filter(Boolean);
   localStorage.setItem('achagi_config', JSON.stringify(config));
   db.ref('config').set(config);
   showToastAdmin('Configurações salvas! ✓');
@@ -1181,7 +1181,7 @@ function renderSecoes() {
   // Clean up any empty-named sections
   const secoes = getSecoes();
   let changed = false;
-  Object.keys(secoes).forEach(k => { if(!k.trim()) { delete secoes[k]; changed = true; }});
+  Object.keys(secoes).forEach(function(k) { if(!k.trim()) { delete secoes[k]; changed = true; }});
   if(changed) saveSecoes(secoes);
   const lista = document.getElementById('secoes-lista');
   lista.innerHTML = Object.entries(secoes).map(function(entry) {
@@ -1266,7 +1266,7 @@ function removerSecao(nome) {
 
 function removerSub(secao, sub) {
   const secoes = getSecoes();
-  secoes[secao].subs = secoes[secao].subs.filter(s => s !== sub);
+  secoes[secao].subs = secoes[secao].subs.filter(function(s) { return s !== sub; });
   saveSecoes(secoes);
   renderSecoes();
 }
@@ -1403,7 +1403,7 @@ function salvarProduto() {
   if (editandoProdutoNome) {
     // Update existing product in localStorage
     let produtos = JSON.parse(localStorage.getItem('achagi_produtos') || '[]');
-    const idx = produtos.findIndex(x => x.nome === editandoProdutoNome);
+    const idx = produtos.findIndex(function(x) { return x.nome === editandoProdutoNome; });
     if (idx !== -1) {
       produtos[idx] = { ...produtos[idx], ...produto, nome: produto.nome };
       // Save to Firebase
@@ -1414,7 +1414,7 @@ function salvarProduto() {
     }
     // Update table row
     const rows = document.querySelectorAll('#products-table-body tr');
-    rows.forEach(r => { if(r.querySelector('strong') && r.querySelector('strong').textContent === editandoProdutoNome) r.remove(); });
+    rows.forEach(function(r) { if(r.querySelector('strong') && r.querySelector('strong').textContent === editandoProdutoNome) r.remove(); });
     editandoProdutoNome = null;
     showToastAdmin('Produto atualizado! ✓');
   } else {
@@ -1446,13 +1446,13 @@ function showToastAdmin(msg) {
   t.textContent = msg;
   t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:10px 20px;border-radius:24px;font-size:13px;z-index:9999;white-space:nowrap;font-family:DM Sans,sans-serif';
   document.body.appendChild(t);
-  setTimeout(() => t.remove(), 2500);
+  setTimeout(function() { t.remove(); }, 2500);
 }
 
 // Carregar produtos salvos ao abrir
 function carregarProdutosSalvos() {
   const produtos = JSON.parse(localStorage.getItem('achagi_produtos') || '[]');
-  produtos.forEach(p => adicionarNaTabela(p));
+  produtos.forEach(function(p) { adicionarNaTabela(p); });
 }
 
 // Edit produto
@@ -1464,7 +1464,7 @@ function editProduto(nome, secao, sub, loja) {
   
   // Load full product data from localStorage
   const produtos = JSON.parse(localStorage.getItem('achagi_produtos') || '[]');
-  const p = produtos.find(x => x.nome === nome);
+  const p = produtos.find(function(x) { return x.nome === nome; });
   
   document.getElementById('modal-nome').value = nome;
   document.getElementById('modal-desc').value = p ? p.desc || '' : '';
@@ -1501,17 +1501,16 @@ function removeProduto(btn) {
   if(confirm('Remover este produto?')) {
     const tr = btn.closest('tr');
     const nome = tr.querySelector('strong').textContent;
-    // Remove from localStorage
+    // Remove from Firebase
     let produtos = JSON.parse(localStorage.getItem('achagi_produtos') || '[]');
-    produtos = produtos.filter(p => p.nome !== nome);
-    // Save to Firebase
-  const prodRef = db.ref('produtos/' + produto.id);
-  prodRef.set(produto);
-  // Also keep localStorage as backup
-  localStorage.setItem('achagi_produtos', JSON.stringify(produtos));
+    const prod = produtos.find(function(p) { return p.nome === nome; });
+    if (prod) db.ref('produtos/' + prod.id).remove();
+    // Remove from localStorage
+    produtos = produtos.filter(function(p) { return p.nome !== nome; });
+    localStorage.setItem('achagi_produtos', JSON.stringify(produtos));
     tr.style.opacity = '0.4';
     tr.style.pointerEvents = 'none';
-    setTimeout(()=>tr.remove(), 300);
+    setTimeout(function(){ tr.remove(); }, 300);
     showToastAdmin('Produto removido!');
   }
 }
@@ -1597,7 +1596,7 @@ async function gerarDescricao() {
     });
 
     const data = await response.json();
-    const texto = data.content?.map(i => i.text || '').join('').trim();
+    const texto = (data.content || []).map(function(i) { return i.text || ''; }).join('').trim();
     textarea.value = texto || 'Não foi possível gerar. Tente novamente.';
   } catch(err) {
     textarea.value = 'Erro ao gerar. Verifique sua conexão e tente novamente.';

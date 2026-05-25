@@ -814,7 +814,7 @@ let currentSearch = '';
 // TAG NOVO: marca produtos adicionados nos últimos 7 dias
 function checkNewTags() {
   const now = new Date();
-  document.querySelectorAll('.product-card[data-added]').forEach(card => {
+  document.querySelectorAll('.product-card[data-added]').forEach(function(card) {
     const added = new Date(card.dataset.added);
     const days = (now - added) / (1000 * 60 * 60 * 24);
     const novoTag = card.querySelector('.tag-novo');
@@ -846,14 +846,14 @@ function showSection(name, e) {
 
 // SUBSECÇÃO
 function showSub(section, sub) {
-  Object.keys(subLabels[section]).forEach(s => {
+  Object.keys(subLabels[section]).forEach(function(s) {
     const el = document.getElementById(section+'-'+s);
     if (el) el.classList.toggle('visible', s === sub);
   });
   const label = document.getElementById(section+'-label');
   if (label) label.textContent = subLabels[section][sub];
   const tabs = event.target.parentElement.querySelectorAll('.sub-tab');
-  tabs.forEach(t => { t.className = 'sub-tab'; if (t === event.target) t.classList.add(activeClass[section]); });
+  tabs.forEach(function(t) { t.className = 'sub-tab'; if (t === event.target) t.classList.add(activeClass[section]); });
   applyFilters();
 }
 
@@ -864,10 +864,10 @@ let currentSort = null;
 function setSort(dir, btn) {
   if (currentSort === dir) {
     currentSort = null;
-    document.querySelectorAll('#sort-asc, #sort-desc').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#sort-asc, #sort-desc').forEach(function(b) { b.classList.remove('active'); });
   } else {
     currentSort = dir;
-    document.querySelectorAll('#sort-asc, #sort-desc').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#sort-asc, #sort-desc').forEach(function(b) { b.classList.remove('active'); });
     btn.classList.add('active');
   }
   applyFilters();
@@ -876,7 +876,7 @@ function setSort(dir, btn) {
 // FILTRO PREÇO
 function setFilter(val, btn) {
   currentFilter = val;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
   btn.classList.add('active');
   applyFilters();
 }
@@ -896,19 +896,19 @@ function applyFilters() {
 
   // Sort if needed
   if (currentSort) {
-    cards.sort((a, b) => {
+    cards.sort(function(a, b) {
       const pa = parseInt(a.dataset.price || '99999');
       const pb = parseInt(b.dataset.price || '99999');
       return currentSort === 'asc' ? pa - pb : pb - pa;
     });
     // Reorder in DOM
-    cards.forEach(card => {
+    cards.forEach(function(card) {
       const parent = card.parentNode;
       if (parent) parent.appendChild(card);
     });
   }
 
-  cards.forEach(card => {
+  cards.forEach(function(card) {
     const price = parseInt(card.dataset.price || '99999');
     const name = card.querySelector('.product-name').textContent.toLowerCase();
     const desc = card.querySelector('.product-desc').textContent.toLowerCase();
@@ -924,14 +924,14 @@ function applyFilters() {
   document.getElementById('favSection').style.display = searching ? 'none' : '';
   document.getElementById('favDivider').style.display = searching ? 'none' : '';
   document.getElementById('mainNav').style.display = searching ? 'none' : '';
-  document.querySelectorAll('[id^="sec-"]').forEach(s => s.style.display = searching ? '' : '');
-  if (searching) sections.forEach(s => document.getElementById('sec-'+s).style.display = '');
+  document.querySelectorAll('[id^="sec-"]').forEach(function(s) { s.style.display = searching ? '' : ''; });
+  if (searching) sections.forEach(function(s) { document.getElementById('sec-'+s).style.display = ''; });
 
   // mostrar todos os subsections na busca
-  if (searching) document.querySelectorAll('.subsection').forEach(s => s.classList.add('visible'));
+  if (searching) document.querySelectorAll('.subsection').forEach(function(s) { s.classList.add('visible'); });
   else {
-    document.querySelectorAll('.subsection').forEach(s => s.classList.remove('visible'));
-    document.querySelectorAll('.subsection:first-of-type').forEach(s => s.classList.add('visible'));
+    document.querySelectorAll('.subsection').forEach(function(s) { s.classList.remove('visible'); });
+    document.querySelectorAll('.subsection:first-of-type').forEach(function(s) { s.classList.add('visible'); });
   }
 
   const countEl = document.getElementById('searchCount');
@@ -1080,7 +1080,7 @@ function enviarDuvida() {
   document.getElementById('duvida-nome').value = '';
   document.getElementById('duvida-texto').value = '';
   document.getElementById('duvida-ok').style.display = 'block';
-  setTimeout(() => document.getElementById('duvida-ok').style.display = 'none', 3000);
+  setTimeout(function() { document.getElementById('duvida-ok').style.display = 'none'; }, 3000);
 }
 
 // NOTIFICAÇÕES DE NOVO PRODUTO
@@ -1089,16 +1089,16 @@ function checkNotificacoes(produtos) {
   const visto = JSON.parse(localStorage.getItem('achagi_visto') || '[]');
   const secaoMap = { 'Moda':'moda', 'Casa & Deco':'casa', 'Beleza':'beleza' };
   
-  const novos = produtos.filter(p => !visto.includes(p.id));
+  const novos = produtos.filter(function(p) { return !visto.includes(p.id); });
   
   // Reset dots
-  ['moda','casa','beleza'].forEach(s => {
+  ['moda','casa','beleza'].forEach(function(s) {
     const dot = document.getElementById('notif-'+s);
     if (dot) dot.style.display = 'none';
   });
   
   // Show dots for sections with new products
-  novos.forEach(p => {
+  novos.forEach(function(p) {
     const sec = secaoMap[p.secao];
     if (sec) {
       const dot = document.getElementById('notif-'+sec);
@@ -1200,7 +1200,7 @@ function renderAlbumGrid() {
 
 function selectAlbum(name, el) {
   selectedAlbum = name;
-  document.querySelectorAll('.album-item').forEach(i => i.classList.remove('selected'));
+  document.querySelectorAll('.album-item').forEach(function(i) { i.classList.remove('selected'); });
   el.classList.add('selected');
 }
 
@@ -1208,7 +1208,7 @@ function saveToAlbum() {
   if (!selectedAlbum || !currentSaveBtn) { showToast('Escolha um álbum!'); return; }
   const card = currentSaveBtn.closest('.product-card');
   const product = { name: card.dataset.name, emoji: card.dataset.emoji || '🛍️', price: card.dataset.price, link: card.href };
-  const already = albums[selectedAlbum].products.find(p => p.name === product.name);
+  const already = albums[selectedAlbum].products.find(function(p) { return p.name === product.name; });
   if (!already) albums[selectedAlbum].products.push(product);
   saveAlbums();
   currentSaveBtn.textContent = '♥';
@@ -1220,7 +1220,7 @@ function saveToAlbum() {
 function showAlbums(e) {
   e.preventDefault();
   document.getElementById('albumsPage').classList.add('visible');
-  ['sec-moda','sec-casa','sec-beleza','favSection','favDivider'].forEach(id => {
+  ['sec-moda','sec-casa','sec-beleza','favSection','favDivider'].forEach(function(id) {
     const el = document.getElementById(id); if (el) el.style.display = 'none';
   });
   renderAlbumsPage();
@@ -1262,13 +1262,13 @@ function renderAlbumsPage() {
 
 function shareAlbum(name) {
   const url = window.location.origin + window.location.pathname + '?album=' + encodeURIComponent(name);
-  navigator.clipboard.writeText(url).then(() => showToast('Link copiado! 🔗'));
+  navigator.clipboard.writeText(url).then(function() { showToast('Link copiado! 🔗'); });
 }
 
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+  setTimeout(function() { t.classList.remove('show'); }, 2500);
 }
 
 
@@ -1280,7 +1280,7 @@ function renderMaisAmados(produtos) {
   if (!grid) return;
 
   // Sort by cliques desc, take top 3
-  const top = [...produtos].sort((a,b) => (b.cliques||0) - (a.cliques||0)).slice(0,3);
+  const top = produtos.slice().sort(function(a,b) { return (b.cliques||0) - (a.cliques||0); }).slice(0,3);
 
   if (top.length === 0) {
     // Keep static placeholders
@@ -1308,7 +1308,7 @@ function renderPromocoes(produtos) {
   const limites = [50, 100, 150];
   
   for (const limite of limites) {
-    const baratos = produtos.filter(p => parseInt(p.precoAfiliada || p.preco || 999) <= limite);
+    const baratos = produtos.filter(function(p) { return parseInt(p.precoAfiliada || p.preco || 999) <= limite; });
     if (baratos.length > 0) {
       const grid = document.getElementById('promoGrid');
       const section = document.getElementById('promoSection');
@@ -1337,7 +1337,7 @@ document.addEventListener('click', function(e) {
   const nome = card.dataset.name;
   if (!nome) return;
   const produtos = JSON.parse(localStorage.getItem('achagi_produtos') || '[]');
-  const p = produtos.find(x => x.nome === nome);
+  const p = produtos.find(function(x) { return x.nome === nome; });
   if (p) { p.cliques = (p.cliques||0) + 1; localStorage.setItem('achagi_produtos', JSON.stringify(produtos)); }
 });
 
@@ -1346,7 +1346,7 @@ function carregarProdutosDoAdmin() {
   const produtos = JSON.parse(localStorage.getItem('achagi_produtos') || '[]');
   if (produtos.length === 0) return;
 
-  produtos.forEach(p => {
+  produtos.forEach(function(p) {
     const secaoMap = { 'Moda': 'moda', 'Casa & Deco': 'casa', 'Beleza': 'beleza' };
     const subMap = {
       'Casual':'casual','Festa':'festa','Academia':'academia',
