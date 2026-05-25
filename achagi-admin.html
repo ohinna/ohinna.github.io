@@ -1184,24 +1184,19 @@ function renderSecoes() {
   Object.keys(secoes).forEach(k => { if(!k.trim()) { delete secoes[k]; changed = true; }});
   if(changed) saveSecoes(secoes);
   const lista = document.getElementById('secoes-lista');
-  lista.innerHTML = Object.entries(secoes).map(([nome, data]) => `
-    <div class="table-card" style="margin-bottom:1rem">
-      <div class="table-header">
-        <h3>${data.emoji} ${nome}</h3>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-secondary btn-sm" onclick="editarSecao('${nome}')">Editar</button>
-          ${!secoesDefault[nome] ? `<button class="btn btn-danger btn-sm" onclick="removerSecao('${nome}')">Remover</button>` : ''}
-        </div>
-      </div>
-      <div style="padding:1rem;display:flex;flex-wrap:wrap;gap:8px">
-        ${data.subs.map(s => `
-          <div style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:13px">
-            ${s}
-            <span onclick="removerSub('${nome}','${s}')" style="cursor:pointer;color:var(--gray-light);font-size:16px;line-height:1">&times;</span>
-          </div>`).join('')}
-        <button class="btn btn-secondary btn-sm" onclick="adicionarSubDireto('${nome}')">+ sub</button>
-      </div>
-    </div>`).join('');
+  lista.innerHTML = Object.entries(secoes).map(function(entry) {
+    var nome = entry[0]; var data = entry[1];
+    var removeBtn = !secoesDefault[nome] ? '<button class="btn btn-danger btn-sm" onclick="removerSecao(\'' + nome + '\')">Remover</button>' : '';
+    var subsHtml = data.subs.map(function(s) {
+      return '<div style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:13px">'
+        + s + '<span onclick="removerSub(\'' + nome + '\',\'' + s + '\')" style="cursor:pointer;color:var(--gray-light);font-size:16px;line-height:1">&times;</span></div>';
+    }).join('');
+    return '<div class="table-card" style="margin-bottom:1rem">'
+      + '<div class="table-header"><h3>' + data.emoji + ' ' + nome + '</h3>'
+      + '<div style="display:flex;gap:8px"><button class="btn btn-secondary btn-sm" onclick="editarSecao(\'' + nome + '\')">Editar</button>' + removeBtn + '</div></div>'
+      + '<div style="padding:1rem;display:flex;flex-wrap:wrap;gap:8px">' + subsHtml
+      + '<button class="btn btn-secondary btn-sm" onclick="adicionarSubDireto(\'' + nome + '\')">+ sub</button></div></div>';
+  }).join('');
 }
 
 let subsTemp = [];
@@ -1233,10 +1228,10 @@ function fecharModalSecao() {
 }
 
 function renderSubTemp() {
-  document.getElementById('sub-lista').innerHTML = subsTemp.map((s,i) => `
-    <div style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:13px">
-      ${s} <span onclick="subsTemp.splice(${i},1);renderSubTemp()" style="cursor:pointer;color:var(--gray-light);font-size:16px">&times;</span>
-    </div>`).join('');
+  document.getElementById('sub-lista').innerHTML = subsTemp.map(function(s,i) {
+    return '<div style="display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:13px">'
+      + s + '<span onclick="subsTemp.splice(' + i + ',1);renderSubTemp()" style="cursor:pointer;color:var(--gray-light);font-size:16px">&times;</span></div>';
+  }).join('');
 }
 
 function adicionarSub() {
@@ -1261,7 +1256,7 @@ function salvarSecao() {
 }
 
 function removerSecao(nome) {
-  if (!confirm(`Remover a seção "${nome}"?`)) return;
+  if (!confirm('Remover a seção "' + nome + '"?')) return;
   const secoes = getSecoes();
   delete secoes[nome];
   saveSecoes(secoes);
@@ -1277,7 +1272,7 @@ function removerSub(secao, sub) {
 }
 
 function adicionarSubDireto(secao) {
-  const sub = prompt(`Nova subsecção em "${secao}":`);
+  const sub = prompt('Nova subsecção em "' + secao + '":');
   if (!sub) return;
   const secoes = getSecoes();
   secoes[secao].subs.push(sub);
@@ -1291,7 +1286,7 @@ function atualizarDropdowns() {
   const subSel = document.getElementById('modal-subsecao');
   if (!secaoSel) return;
   const secaoAtual = secaoSel.value;
-  secaoSel.innerHTML = Object.entries(secoes).map(([nome]) => `<option value="${nome}">${nome}</option>`).join('');
+  secaoSel.innerHTML = Object.entries(secoes).map(function(e){return '<option value="'+e[0]+'">'+ e[0]+'</option>';}).join('');
   secaoSel.value = secaoAtual;
   atualizarSubsecoes();
 }
@@ -1303,43 +1298,34 @@ function atualizarSubsecoes() {
   if (!secaoSel || !subSel) return;
   const secao = secaoSel.value;
   const subs = secoes[secao]?.subs || [];
-  subSel.innerHTML = subs.map(s => `<option value="${s}">${s}</option>`).join('');
+  subSel.innerHTML = subs.map(function(s){return '<option value="'+s+'">'+ s+'</option>';}).join('');
 }
 
 
 // DÚVIDAS DO SITE
 function carregarDuvidas() {
-  db.ref('duvidas').on('value', snap => {
-    const duvidas = snap.val() || [];
-  const lista = document.getElementById('duvidas-lista');
-  const count = document.getElementById('duvidas-count');
-  if (!lista) return;
-  
-  if (duvidas.length === 0) {
-    lista.innerHTML = '<div style="font-size:13px;color:var(--gray-light);font-style:italic;padding:0.5rem 0">Nenhuma dúvida ainda.</div>';
-    if (count) count.textContent = '0 dúvidas';
-    return;
-  }
-
-  if (count) count.textContent = duvidas.length + ' dúvida' + (duvidas.length > 1 ? 's' : '');
-
-  lista.innerHTML = duvidas.map((d, i) => `
-    <div style="padding:1rem 0;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:flex-start">
-      <div style="width:36px;height:36px;border-radius:50%;background:var(--pink-light);color:var(--pink);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex-shrink:0">${d.nome[0].toUpperCase()}</div>
-      <div style="flex:1">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-          <span style="font-size:13px;font-weight:600">${d.nome}</span>
-          <span style="font-size:11px;color:var(--gray-light)">${d.data}</span>
-        </div>
-        <div style="font-size:13px;color:var(--gray)">${d.texto}</div>
-        ${d.resposta ? `<div style="margin-top:8px;background:var(--pink-light);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--pink-dark)"><strong>Sua resposta:</strong> ${d.resposta}</div>` : `
-        <div style="margin-top:8px;display:flex;gap:8px">
-          <input type="text" id="resp-${i}" placeholder="Escreva sua resposta..." style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:'DM Sans',sans-serif">
-          <button class="btn btn-primary btn-sm" onclick="responderDuvida(${i})">Responder</button>
-          <button class="btn btn-danger btn-sm" onclick="removerDuvida(${i})">✕</button>
-        </div>`}
-      </div>
-    </div>`).join('');
+  db.ref('duvidas').on('value', function(snap) {
+    var duvidas = snap.val() || [];
+    var lista = document.getElementById('duvidas-lista');
+    var count = document.getElementById('duvidas-count');
+    if (!lista) return;
+    if (duvidas.length === 0) {
+      lista.innerHTML = '<div style="font-size:13px;color:var(--gray-light);font-style:italic;padding:0.5rem 0">Nenhuma dúvida ainda.</div>';
+      if (count) count.textContent = '0 dúvidas';
+      return;
+    }
+    if (count) count.textContent = duvidas.length + ' dúvida' + (duvidas.length > 1 ? 's' : '');
+    lista.innerHTML = duvidas.map(function(d, i) {
+      var respostaHtml = d.resposta
+        ? '<div style="margin-top:8px;background:var(--pink-light);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--pink-dark)"><strong>Sua resposta:</strong> ' + d.resposta + '</div>'
+        : '<div style="margin-top:8px;display:flex;gap:8px"><input type="text" id="resp-' + i + '" placeholder="Escreva sua resposta..." style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:12px"><button class="btn btn-primary btn-sm" onclick="responderDuvida(' + i + ')">Responder</button><button class="btn btn-danger btn-sm" onclick="removerDuvida(' + i + ')">✕</button></div>';
+      return '<div style="padding:1rem 0;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:flex-start">'
+        + '<div style="width:36px;height:36px;border-radius:50%;background:var(--pink-light);color:var(--pink);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex-shrink:0">' + d.nome[0].toUpperCase() + '</div>'
+        + '<div style="flex:1"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:13px;font-weight:600">' + d.nome + '</span><span style="font-size:11px;color:var(--gray-light)">' + d.data + '</span></div>'
+        + '<div style="font-size:13px;color:var(--gray)">' + d.texto + '</div>'
+        + respostaHtml + '</div></div>';
+    }).join('');
+  });
 }
 
 function responderDuvida(idx) {
@@ -1382,7 +1368,7 @@ function salvarProduto() {
     nome, desc, secao, subsecao, loja, link, precoOriginal, precoAfiliada,
     foto: hasPhoto ? imgEl.src : null,
     cliques: 0,
-    added: new Date().toISOString().split('T')[0]
+    added: new Date().toISOString()
   };
   produtos.push(produto);
   // Save to Firebase
@@ -1440,18 +1426,15 @@ function adicionarNaTabela(p) {
   const tbody = document.getElementById('products-table-body');
   const badgeClass = p.secao === 'Moda' ? 'badge-moda' : p.secao === 'Casa & Deco' ? 'badge-casa' : 'badge-beleza';
   const lojaClass = p.loja === 'Shein' ? 'badge-shein' : p.loja === 'Shopee' ? 'badge-shopee' : 'badge-shein';
-  const fotoHtml = p.foto ? `<img src="${p.foto}" style="width:36px;height:36px;object-fit:cover;border-radius:6px;margin-right:8px;vertical-align:middle">` : '';
+  const fotoHtml = p.foto ? '<img src="' + p.foto + '" style="width:36px;height:36px;object-fit:cover;border-radius:6px;margin-right:8px;vertical-align:middle">' : '';
   const tr = document.createElement('tr');
-  tr.innerHTML = `
-    <td>${fotoHtml}<strong>${p.nome}</strong></td>
-    <td><span class="badge ${badgeClass}">${p.secao}</span></td>
-    <td>${p.subsecao}</td>
-    <td><span class="badge ${lojaClass}">${p.loja}</span></td>
-    <td>0</td>
-    <td>
-      <button class="btn btn-secondary btn-sm" onclick="editProduto('${p.nome}','${p.secao}','${p.subsecao}','${p.loja}')">Editar</button>
-      <button class="btn btn-danger btn-sm" style="margin-left:4px" onclick="removeProduto(this)">Remover</button>
-    </td>`;
+  tr.innerHTML = '<td>' + fotoHtml + '<strong>' + p.nome + '</strong></td>'
+    + '<td><span class="badge ' + badgeClass + '">' + p.secao + '</span></td>'
+    + '<td>' + p.subsecao + '</td>'
+    + '<td><span class="badge ' + lojaClass + '">' + p.loja + '</span></td>'
+    + '<td>0</td>'
+    + '<td><button class="btn btn-secondary btn-sm" onclick="editProduto(\'' + p.nome + '\',\'' + p.secao + '\',\'' + p.subsecao + '\',\'' + p.loja + '\')">Editar</button>'
+    + '<button class="btn btn-danger btn-sm" style="margin-left:4px" onclick="removeProduto(this)">Remover</button></td>';
   tbody.prepend(tr);
 }
 
@@ -1598,22 +1581,7 @@ async function gerarDescricao() {
 
     userContent.push({
       type: 'text',
-      text: `Você é uma afiliada de moda e lifestyle famosa no Pinterest e TikTok. Gere uma descrição curta e irresistível para este produto.
-
-Produto: ${nome || 'produto da foto'}
-Loja: ${loja}
-Seção: ${secao}
-
-Regras:
-- Máximo 3 frases curtas
-- Tom pessoal, como se você estivesse recomendando pra uma amiga
-- Crie desejo antes de vender
-- Mencione que parece mais caro do que é (se for moda)
-- Termine com uma frase de ação suave tipo "link aqui em cima 👆" ou "corre que esgota rápido"
-- Use 1 emoji no máximo
-- NÃO use hashtags aqui
-
-Retorne APENAS a descrição, sem aspas ou explicações.`
+      text: 'Você é uma afiliada de moda e lifestyle famosa no Pinterest e TikTok. Gere uma descrição curta e irresistível para este produto.\n\nProduto: ${nome || \'produto da foto\'}\nLoja: ${loja}\nSeção: ${secao}\n\nRegras:\n- Máximo 3 frases curtas\n- Tom pessoal, como se você estivesse recomendando pra uma amiga\n- Crie desejo antes de vender\n- Mencione que parece mais caro do que é (se for moda)\n- Termine com uma frase de ação suave tipo "link aqui em cima 👆" ou "corre que esgota rápido"\n- Use 1 emoji no máximo\n- NÃO use hashtags aqui\n\nRetorne APENAS a descrição, sem aspas ou explicações.'
     });
 
     messages.push({ role: 'user', content: userContent });
@@ -1675,13 +1643,20 @@ function addComment() {
   const p = palettes[Math.floor(Math.random()*palettes.length)];
   const starsHtml = '⭐'.repeat(parseInt(stars));
   const statusBadge = status === 'approved' ? '<span class="badge badge-approved">Aprovado</span>' : '<span class="badge badge-pending">Pendente</span>';
-  const productHtml = product ? `<div style="font-size:11px;color:var(--gray-light);margin-top:2px">📦 ${product}</div>` : '';
-  const photoHtml = hasPhoto ? `<img src="${imgEl.src}" style="width:100%;max-height:180px;object-fit:cover;border-radius:8px;margin-top:10px;border:1px solid var(--border)">` : '';
-  const actionsHtml = status === 'pending' ? `<div class="comment-actions"><button class="btn btn-secondary btn-sm" onclick="approveComment(this)">✓ Aprovar</button><button class="btn btn-danger btn-sm" onclick="removeComment(this)">✕ Rejeitar</button></div>` : '';
+  const productHtml = product ? '<div style="font-size:11px;color:var(--gray-light);margin-top:2px">📦 ' + product + '</div>' : '';
+  const photoHtml = hasPhoto ? '<img src="' + imgEl.src + '" style="width:100%;max-height:180px;object-fit:cover;border-radius:8px;margin-top:10px;border:1px solid var(--border)">' : '';
+  const actionsHtml = status === 'pending' ? '<div class="comment-actions"><button class="btn btn-secondary btn-sm" onclick="approveComment(this)">✓ Aprovar</button><button class="btn btn-danger btn-sm" onclick="removeComment(this)">✕ Rejeitar</button></div>' : '';
   const card = document.createElement('div');
   card.className = 'comment-card';
   card.dataset.status = status;
-  card.innerHTML = `<div class="comment-avatar" style="background:${p[0]};color:${p[1]}">${name[0].toUpperCase()}</div><div class="comment-body"><div class="comment-meta"><span class="comment-name">${name}</span>${statusBadge}<span class="comment-date">agora</span></div>${productHtml}<div class="comment-text">${text}</div>${photoHtml}<div style="font-size:13px;color:var(--amber);margin-top:4px">${starsHtml}</div>${actionsHtml}</div>`;
+  card.innerHTML = '<div class="comment-avatar" style="background:'+p[0]+';color:'+p[1]+'">' + name[0].toUpperCase() + '</div>'
+    + '<div class="comment-body"><div class="comment-meta"><span class="comment-name">' + name + '</span>'
+    + statusBadge + '<span class="comment-date">agora</span></div>'
+    + productHtml
+    + '<div class="comment-text">' + text + '</div>'
+    + photoHtml
+    + '<div style="font-size:13px;color:var(--amber);margin-top:4px">' + starsHtml + '</div>'
+    + actionsHtml + '</div>';
   document.getElementById('comments-list').prepend(card);
   updatePendingCount();
   document.getElementById('new-name').value = '';
@@ -1706,7 +1681,7 @@ function removeComment(btn) {
 function updatePendingCount() {
   const pending = document.querySelectorAll('.comment-card[data-status="pending"]').length;
   const el = document.getElementById('pending-count');
-  if (el) el.textContent = pending > 0 ? `${pending} pendente${pending > 1 ? 's' : ''}` : 'tudo em dia ✓';
+  if (el) el.textContent = pending > 0 ? (pending + ' pendente' + (pending > 1 ? 's' : '')) : 'tudo em dia ✓';
 }
 
 // Charts
@@ -1785,8 +1760,8 @@ function renderRelatorio() {
 function exportRelatorio() {
   const idx = parseInt(document.getElementById('relatorio-semana').value);
   const d = relData[idx];
-  const text = `Relatório AchaGi — ${d.periodo}\nCliques: ${d.clicks.reduce((a,b)=>a+b,0)}\nTop produto: ${d.top} (${d.topN} cliques)\nEstimativa comissão: ${d.comissao}`;
-  navigator.clipboard.writeText(text).then(()=>alert('Relatório copiado! Cole onde quiser.'));
+  const text = 'Relatório AchaGi — ' + d.periodo + '\nCliques: ' + d.clicks.reduce(function(a,b){return a+b;},0) + '\nTop produto: ' + d.top + ' (' + d.topN + ' cliques)\nEstimativa comissão: ' + d.comissao;
+  navigator.clipboard.writeText(text).then(function(){ alert('Relatório copiado! Cole onde quiser.'); });
 }
 
 // AGENDAMENTO CALENDÁRIO
@@ -1796,18 +1771,17 @@ function renderCalendar() {
   const days = ['D','S','T','Q','Q','S','S'];
   const scheduled = [22, 24];
   const published = [18, 15, 10];
-  let html = days.map(d=>`<div style="text-align:center;font-size:10px;color:var(--gray-light);padding:4px 0">${d}</div>`).join('');
+  let html = days.map(function(d){return '<div style="text-align:center;font-size:10px;color:var(--gray-light);padding:4px 0">'+d+'</div>';}).join('');
   // May 2025 starts on Thursday (offset 4)
-  for(let i=0;i<4;i++) html+=`<div></div>`;
+  for(let i=0;i<4;i++) html+='<div></div>';
   for(let d=1;d<=31;d++){
     const isToday = d===21;
     const hasSched = scheduled.includes(d);
     const hasPub = published.includes(d);
     const dot = hasSched ? 'var(--pink)' : hasPub ? 'var(--green)' : 'transparent';
-    html+=`<div style="text-align:center;padding:5px 2px;border-radius:6px;cursor:pointer;font-size:12px;${isToday?'background:var(--pink-light);font-weight:600;color:var(--pink)':''}" onclick="filterDay(${d})">
-      ${d}
-      <div style="width:5px;height:5px;border-radius:50%;background:${dot};margin:2px auto 0"></div>
-    </div>`;
+    var dayStyle = isToday ? 'background:var(--pink-light);font-weight:600;color:var(--pink)' : '';
+    html += '<div style="text-align:center;padding:5px 2px;border-radius:6px;cursor:pointer;font-size:12px;' + dayStyle + '" onclick="filterDay(' + d + ')">'
+      + d + '<div style="width:5px;height:5px;border-radius:50%;background:' + dot + ';margin:2px auto 0"></div></div>';
   }
   cal.innerHTML = html;
 }
@@ -1829,7 +1803,6 @@ function saveAgend() {
 
 // init
 renderCalendar();
-
 </script>
 </body>
 </html>
