@@ -1385,7 +1385,7 @@ function carregarProdutosDoAdmin() {
     const lojaTag = '<span class="product-tag ' + (tagClass[p.loja] || 'tag-shein') + '">' + p.loja + '</span>';
 
     const card = document.createElement('a');
-    card.className = 'product-card';
+    card.className = 'product-card dynamic';
     card.href = p.link || '#';
     card.target = '_blank';
     card.dataset.price = p.precoAfiliada || p.preco || '999';
